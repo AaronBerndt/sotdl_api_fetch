@@ -6,7 +6,10 @@ const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
-    const data = await fetchCollection("ancestries");
+    const name: any = request.query.name;
+    const data = name
+      ? await fetchCollection("ancestries", { name })
+      : await fetchCollection("ancestries");
     response.status(200).send(data);
   } catch (e) {
     response.status(504).send(e);
