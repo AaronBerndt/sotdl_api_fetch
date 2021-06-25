@@ -1,4 +1,4 @@
-import { MongoClient, ObjectID } from "mongodb";
+import { MongoClient } from "mongodb";
 
 let cachedDb = null;
 
@@ -17,7 +17,7 @@ async function connectToDatabase() {
   return db;
 }
 
-export async function fetchCollection(collectionName: string) {
+export async function fetchCollection(collectionName: string, filters?: any) {
   try {
     if (uri === undefined) {
       throw "URI is undefined";
@@ -25,7 +25,7 @@ export async function fetchCollection(collectionName: string) {
 
     const database = await connectToDatabase();
     const collection = database.collection(collectionName);
-    const data = await collection.find({}).toArray();
+    const data = await collection.find(filters ? filters : {}).toArray();
 
     return data;
   } catch (e) {
