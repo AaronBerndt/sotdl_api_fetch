@@ -10,7 +10,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const data = id
       ? await fetchCollection("characters", { _id: new ObjectId(id) })
       : await fetchCollection("characters", {});
-    response.status(200).send(data.length === 1 ? data[0] : data);
+
+    response.status(200).send(id ? data[0] : data);
   } catch (e) {
     response.status(504).send(e);
   }
