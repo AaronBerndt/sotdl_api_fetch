@@ -79,7 +79,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     } else {
       finalData = data;
     }
-    response.status(200).send(data);
+    response.status(200).send(finalData);
   } catch (e) {
     response.status(504).send(e);
   }
