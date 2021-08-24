@@ -34,6 +34,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         name !== "" ? find(paths, { name })[key] : [];
 
       finaldata = {
+        _id: id,
         name: characterData.name,
         level: characterData.level,
         ancestry: characterData.ancestry,
