@@ -74,15 +74,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           otherItems: characterData.items.otherItems,
           currency: characterData.items.currency,
         },
-        languages: [],
-        professions: [],
-        details: [],
-        characterState: {
-          damage: 0,
-          expended: [],
-          overrides: characterData.overrides,
-          afflictions: [],
-        },
+        languages: characterData.languages,
+        professions: characterData.professions,
+        details: characterData.details,
+        characterState: characterData.characterState,
       };
     } else {
       finaldata = data;
