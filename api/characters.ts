@@ -9,17 +9,18 @@ const cors = microCors();
 const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
     const id: any = request.query._id;
-    let finalData = null;
+    let finaldata = null;
     const data = id
       ? await fetchCollection("characters", { _id: new ObjectId(id) })
       : await fetchCollection("characters", {});
 
     if (id) {
-      const { ancestry: characterAncestry, level } = data;
+      const [characterData] = data;
+
       const {
         data: [ancestry],
       } = await axios(
-        `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${characterAncestry}`
+        `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${characterData.ancestry}`
       );
 
       const { data: paths } = await axios(
@@ -27,44 +28,50 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       );
 
       const filterByLevel = (array) =>
-        array.filter(({ level }) => level <= level);
+        array.filter(({ level }) => level <= characterData.level);
 
       const filterByPathName = (name: string, key: string) =>
         name !== "" ? find(paths, { name })[key] : [];
 
-      finalData = {
-        name: data.name,
-        level: data.level,
-        ancestry: data.ancestry,
-        novicePath: data.novicePath,
-        expertPath: data.expertPath,
-        masterPath: data.masterPath,
+      finaldata = {
+        name: characterData.name,
+        level: characterData.level,
+        ancestry: characterData.ancestry,
+        novicePath: characterData.novicePath,
+        expertPath: characterData.expertPath,
+        masterPath: characterData.masterPath,
         characteristics: [
           ...filterByLevel(ancestry.characteristics),
           ...filterByLevel(
-            filterByPathName(data.novicePath, "characteristics")
+            filterByPathName(characterData.novicePath, "characteristics")
           ),
           ...filterByLevel(
-            filterByPathName(data.expertPath, "characteristics")
+            filterByPathName(characterData.expertPath, "characteristics")
           ),
           ...filterByLevel(
-            filterByPathName(data.masterPath, "characteristics")
+            filterByPathName(characterData.masterPath, "characteristics")
           ),
-          ...data.characteristics,
+          ...characterData.characteristics,
         ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
         talents: [
           ...filterByLevel(ancestry.talents),
-          ...filterByLevel(filterByPathName(data.novicePath, "talents")),
-          ...filterByLevel(filterByPathName(data.expertPath, "talents")),
-          ...filterByLevel(filterByPathName(data.masterPath, "talents")),
+          ...filterByLevel(
+            filterByPathName(characterData.novicePath, "talents")
+          ),
+          ...filterByLevel(
+            filterByPathName(characterData.expertPath, "talents")
+          ),
+          ...filterByLevel(
+            filterByPathName(characterData.masterPath, "talents")
+          ),
         ],
-        spells: data.spells,
-        traditions: data.traditions,
+        spells: characterData.spells,
+        traditions: characterData.traditions,
         items: {
-          weapons: data.items.filter(({ itemType }) => itemType === "weapon"),
-          armor: data.items.filter(({ itemType }) => itemType === "armor"),
-          otherItems: data.items.filter(({ itemType }) => itemType === "basic"),
-          currency: data.currency,
+          weapons: characterData.items.weapons,
+          armor: characterData.items.armor,
+          otherItems: characterData.items.otherItems,
+          currency: characterData.items.currency,
         },
         languages: [],
         professions: [],
@@ -72,14 +79,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         characterState: {
           damage: 0,
           expended: [],
-          overrides: data.overrides,
+          overrides: characterData.overrides,
           afflictions: [],
         },
       };
     } else {
-      finalData = data;
+      finaldata = data;
     }
-    response.status(200).send(finalData);
+    response.status(200).send(finaldata);
   } catch (e) {
     response.status(504).send(e);
   }
