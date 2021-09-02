@@ -33,6 +33,33 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const filterByPathName = (name: string, key: string) =>
         name !== "" ? find(paths, { name })[key] : [];
 
+      const filterBySubPath = (name: string, key: string) => {
+        console.log(name, key);
+        const keyObject: any = {
+          Warrior: "disciplines",
+          Magician: "focuses",
+          Priest: "faith",
+          Rogue: "knacks",
+        };
+
+        const talentName: any = {
+          Warrior: "Discipline",
+          Magician: "Tradition Focus",
+          Priest: "Faith",
+          Rogue: "Knack",
+        };
+
+        const choiceObject = find(characterData.choices, {
+          name: talentName[name],
+        });
+
+        const subPathData = find(filterByPathName(name, keyObject[name]), {
+          name: choiceObject.value,
+        });
+
+        return subPathData[key];
+      };
+
       finaldata = {
         _id: id,
         name: characterData.name,
@@ -44,7 +71,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         characteristics: [
           ...filterByLevel(ancestry.characteristics),
           ...filterByLevel(
-            filterByPathName(characterData.novicePath, "characteristics")
+            filterBySubPath(characterData.novicePath, "characteristics")
           ),
           ...filterByLevel(
             filterByPathName(characterData.expertPath, "characteristics")
@@ -57,7 +84,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         talents: [
           ...filterByLevel(ancestry.talents),
           ...filterByLevel(
-            filterByPathName(characterData.novicePath, "talents")
+            filterBySubPath(characterData.novicePath, "talents")
           ),
           ...filterByLevel(
             filterByPathName(characterData.expertPath, "talents")
@@ -78,6 +105,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
+        choices: characterData.choices,
       };
     } else {
       finaldata = data;
