@@ -34,7 +34,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         name !== "" ? find(paths, { name })[key] : [];
 
       const filterBySubPath = (name: string, key: string) => {
-        console.log(name, key);
+        if (name === "Adept") {
+          return filterByPathName(name, key);
+        }
         const keyObject: any = {
           Warrior: "disciplines",
           Magician: "focuses",
@@ -53,11 +55,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name: talentName[name],
         });
 
-        const subPathData = find(filterByPathName(name, keyObject[name]), {
-          name: choiceObject.value,
-        });
+        if (choiceObject.value !== "None") {
+          const subPathData = find(filterByPathName(name, keyObject[name]), {
+            name: choiceObject.value,
+          });
 
-        return subPathData[key];
+          return subPathData[key];
+        }
+        return filterByPathName(name, key);
       };
 
       finaldata = {
@@ -105,11 +110,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
-        choices: characterData.choices,
+        choices: characterData.choices ? characterData.choices : [],
       };
     } else {
       finaldata = data;
     }
+
+    console.log(finaldata);
     response.status(200).send(finaldata);
   } catch (e) {
     response.status(504).send(e);
