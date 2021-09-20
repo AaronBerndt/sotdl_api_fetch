@@ -65,6 +65,23 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         return filterByPathName(name, key);
       };
 
+      const createAncestryList = async (list, type) => {
+        const hasPastLife = find(characterData.choices, { name: "Past Life" });
+
+        if (hasPastLife) {
+          const {
+            data: [pastLife],
+          } = await axios(
+            `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${hasPastLife.value}`
+          );
+
+          const { [type]: pastLifeList } = pastLife;
+          return [...list, ...pastLifeList];
+        } else {
+          return list;
+        }
+      };
+
       finaldata = {
         _id: id,
         name: characterData.name,
@@ -74,7 +91,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         expertPath: characterData.expertPath,
         masterPath: characterData.masterPath,
         characteristics: [
-          ...filterByLevel(ancestry.characteristics),
+          ...filterByLevel(
+            createAncestryList(ancestry.characteristics, "characteristics")
+          ),
           ...filterByLevel(
             filterBySubPath(characterData.novicePath, "characteristics")
           ),
@@ -87,7 +106,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           ...characterData.characteristics,
         ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
         talents: [
-          ...filterByLevel(ancestry.talents),
+          ...filterByLevel(createAncestryList(ancestry.talents, "talents")),
           ...filterByLevel(
             filterBySubPath(characterData.novicePath, "talents")
           ),
