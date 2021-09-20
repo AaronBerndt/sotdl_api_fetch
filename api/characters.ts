@@ -2,7 +2,6 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
-import axios from "axios";
 import { find } from "lodash";
 const cors = microCors();
 
@@ -17,15 +16,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (id) {
       const [characterData] = data;
 
-      const {
-        data: [ancestry],
-      } = await axios(
-        `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${characterData.ancestry}`
-      );
+      const [ancestry] = await fetchCollection("ancestries", {
+        name: characterData.ancestry,
+      });
 
-      const { data: paths } = await axios(
-        `https://sotdl-api-fetch.vercel.app/api/paths`
-      );
+      const paths = await fetchCollection("paths");
 
       const filterByLevel = (array) =>
         array.filter(({ level }) => level <= characterData.level);
@@ -69,13 +64,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         const hasPastLife = find(characterData.choices, { name: "Past Life" });
 
         if (hasPastLife) {
-          const {
-            data: [pastLife],
-          } = await axios(
-            `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${hasPastLife.value}`
-          );
+          const [pastLife] = await fetchCollection("ancestries", {
+            name: hasPastLife.value,
+          });
 
-          const { [type]: pastLifeList } = pastLife;
+          const pastLifeList = pastLife[type];
           return [...list, ...pastLifeList];
         } else {
           return list;
@@ -92,7 +85,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         masterPath: characterData.masterPath,
         characteristics: [
           ...filterByLevel(
-            createAncestryList(ancestry.characteristics, "characteristics")
+            await createAncestryList(
+              ancestry.characteristics,
+              "characteristics"
+            )
           ),
           ...filterByLevel(
             filterBySubPath(characterData.novicePath, "characteristics")
@@ -106,7 +102,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           ...characterData.characteristics,
         ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
         talents: [
-          ...filterByLevel(createAncestryList(ancestry.talents, "talents")),
+          ...filterByLevel(
+            await createAncestryList(ancestry.talents, "talents")
+          ),
           ...filterByLevel(
             filterBySubPath(characterData.novicePath, "talents")
           ),
@@ -135,7 +133,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       finaldata = data;
     }
 
-    console.log(finaldata);
     response.status(200).send(finaldata);
   } catch (e) {
     response.status(504).send(e);
