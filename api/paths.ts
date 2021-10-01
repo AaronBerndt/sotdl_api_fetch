@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import microCors from "micro-cors";
 import { fetchCollection } from "../utilities/MongoUtils";
+import { orderBy } from "lodash";
 
 const cors = microCors();
 
@@ -11,7 +12,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       ? await fetchCollection("paths", { name })
       : await fetchCollection("paths");
 
-    response.status(200).send(data);
+    response.status(200).send(orderBy(data, ["name"]));
   } catch (e) {
     response.status(504).send(e);
   }
