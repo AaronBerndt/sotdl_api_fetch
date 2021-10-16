@@ -29,6 +29,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         name !== "" ? find(paths, { name })[key] : [];
 
       const filterBySubPath = (name: string, key: string) => {
+        if (name === "") {
+          return [];
+        }
         if (name === "Adept") {
           return filterByPathName(name, key);
         }
@@ -50,7 +53,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name: talentName[name],
         });
 
-        if (choiceObject.value !== "None") {
+        if (choiceObject.value !== "None" || null) {
           const subPathData = find(filterByPathName(name, keyObject[name]), {
             name: choiceObject.value,
           });
@@ -127,7 +130,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
-        choices: characterData.choices ? characterData.choices : [],
+        choices: characterData.choices
+          ? filterByLevel(characterData.choices)
+          : [],
       };
     } else {
       finaldata = data;
