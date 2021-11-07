@@ -1,3 +1,5 @@
+import { find } from "lodash";
+
 type ArmorConditonal = {
   name: string;
   characteristic: string;
@@ -13,12 +15,32 @@ type PassiveIncrease = {
 };
 
 function armorConditonal(conditionalObject: ArmorConditonal, characterData) {
-  const equiped = characterData.items;
-  return {
+  let equipedArmor = find(characterData.items.armor, { equiped: true });
+  equipedArmor = equipedArmor
+    ? equipedArmor
+    : {
+        name: "No Armor Equiped",
+        type: "No Armor",
+      };
+
+  const returnObject = {
     id: conditionalObject.name,
     name: conditionalObject.characteristic,
     value: conditionalObject.value,
   };
+
+  if (conditionalObject.condition === "Not Wearing") {
+    if (!conditionalObject.armorType.includes(equipedArmor.type)) {
+      return returnObject;
+    }
+  }
+  if (conditionalObject.condition === "Wearing") {
+    if (conditionalObject.armorType.includes(equipedArmor.type)) {
+      return returnObject;
+    }
+  }
+
+  return null;
 }
 
 function passiveIncrease(

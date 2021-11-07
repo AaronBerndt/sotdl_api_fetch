@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
-import { find } from "lodash";
+import { find, groupBy, sumBy, filter } from "lodash";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -78,6 +78,41 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         }
       };
 
+      const characteristics = [
+        ...filterByLevel(
+          await createAncestryList(ancestry.characteristics, "characteristics")
+        ),
+        ...filterByLevel(
+          filterBySubPath(characterData.novicePath, "characteristics")
+        ),
+        ...filterByLevel(
+          filterByPathName(characterData.expertPath, "characteristics")
+        ),
+        ...filterByLevel(
+          filterByPathName(characterData.masterPath, "characteristics")
+        ),
+        ...characterData.characteristics,
+        ...characterData.characterState.overrides,
+      ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) }));
+
+      const talents = [
+        ...filterByLevel(await createAncestryList(ancestry.talents, "talents")),
+        ...filterByLevel(filterBySubPath(characterData.novicePath, "talents")),
+        ...filterByLevel(filterByPathName(characterData.expertPath, "talents")),
+        ...filterByLevel(filterByPathName(characterData.masterPath, "talents")),
+      ];
+
+      const characteristicsObject = Object.assign(
+        {},
+        ...Object.entries(groupBy(characteristics, "name")).map(
+          ([NAME, VALUES]: any) => ({
+            [NAME]: sumBy(VALUES, "value"),
+          })
+        )
+      );
+
+      const { Health, Perception, ...rest } = characteristicsObject;
+
       finaldata = {
         _id: id,
         name: characterData.name,
@@ -86,40 +121,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         novicePath: characterData.novicePath,
         expertPath: characterData.expertPath,
         masterPath: characterData.masterPath,
-        characteristics: [
-          ...filterByLevel(
-            await createAncestryList(
-              ancestry.characteristics,
-              "characteristics"
-            )
-          ),
-          ...filterByLevel(
-            filterBySubPath(characterData.novicePath, "characteristics")
-          ),
-          ...filterByLevel(
-            filterByPathName(characterData.expertPath, "characteristics")
-          ),
-          ...filterByLevel(
-            filterByPathName(characterData.masterPath, "characteristics")
-          ),
-          ...characterData.characteristics,
-        ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
-        talents: [
-          ...filterByLevel(
-            await createAncestryList(ancestry.talents, "talents")
-          ),
-          ...filterByLevel(
-            filterBySubPath(characterData.novicePath, "talents")
-          ),
-          ...filterByLevel(
-            filterByPathName(characterData.expertPath, "talents")
-          ),
-          ...filterByLevel(
-            filterByPathName(characterData.masterPath, "talents")
-          ),
-        ],
+        characteristics: {
+          Health: Health + characteristicsObject.Strength,
+          Perception: Perception + characteristicsObject.Intellect,
+          ...rest,
+        },
+        talents: talents,
         spells: characterData.spells,
         traditions: characterData.traditions,
+        attacks: {},
         items: {
           weapons: characterData.items.weapons,
           armor: characterData.items.armor,
