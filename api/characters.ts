@@ -3,6 +3,7 @@ import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
 import { find, groupBy, sumBy, filter } from "lodash";
+import conditionalObject from "./conditionals";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -78,10 +79,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         }
       };
 
-      const characteristics = [
-        ...filterByLevel(
-          await createAncestryList(ancestry.characteristics, "characteristics")
-        ),
+      const talents = [
+        ...filterByLevel(await createAncestryList(ancestry.talents, "talents")),
+        ...filterByLevel(filterBySubPath(characterData.novicePath, "talents")),
+        ...filterByLevel(filterByPathName(characterData.expertPath, "talents")),
+        ...filterByLevel(filterByPathName(characterData.masterPath, "talents")),
+      ];
+
+      const characteristicsFromPaths = [
         ...filterByLevel(
           filterBySubPath(characterData.novicePath, "characteristics")
         ),
@@ -91,16 +96,24 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         ...filterByLevel(
           filterByPathName(characterData.masterPath, "characteristics")
         ),
+      ];
+
+      const characteristics = [
+        ...filterByLevel(
+          await createAncestryList(ancestry.characteristics, "characteristics")
+        ),
+        ...(find(talents, { name: "Wee" })
+          ? characteristicsFromPaths.map((characteristic) => {
+              if (characteristic.name === "Health") {
+                const { value, ...rest } = characteristic;
+                return { ...rest, value: Math.round(value / 2) };
+              }
+              return characteristic;
+            })
+          : characteristicsFromPaths),
         ...characterData.characteristics,
         ...characterData.characterState.overrides,
       ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) }));
-
-      const talents = [
-        ...filterByLevel(await createAncestryList(ancestry.talents, "talents")),
-        ...filterByLevel(filterBySubPath(characterData.novicePath, "talents")),
-        ...filterByLevel(filterByPathName(characterData.expertPath, "talents")),
-        ...filterByLevel(filterByPathName(characterData.masterPath, "talents")),
-      ];
 
       const characteristicsObject = Object.assign(
         {},
@@ -112,6 +125,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       );
 
       const { Health, Perception, ...rest } = characteristicsObject;
+      const conditionals = conditionalObject({
+        characteristics,
+        items: {
+          weapons: characterData.items.weapons,
+          armor: characterData.items.armor,
+          otherItems: characterData.items.otherItems,
+          currency: characterData.items.currency,
+        },
+      });
 
       finaldata = {
         _id: id,
@@ -140,6 +162,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
+        conditionals: Object.entries(conditionals).filter(([NAME]) =>
+          find(talents, NAME)
+        ),
         choices: characterData.choices
           ? filterByLevel(characterData.choices)
           : [],

@@ -1,29 +1,177 @@
 import conditionalObject from "./conditionals";
 
-const characterData = {
+const createCharacterData = (
+  armorType: string,
+  weaponType?: string,
+  withShield?: boolean
+) => ({
+  characteristics: {
+    Health: 10,
+    Perception: 11,
+    Strength: 10,
+    Agility: 13,
+    Intellect: 10,
+    Will: 10,
+    Insanity: 0,
+    Corruption: 0,
+    Power: 2,
+    Speed: 10,
+    Size: 0.2,
+  },
   items: {
+    weapons: [
+      { type: weaponType, equiped: weaponType !== undefined },
+      { type: "shield", equiped: withShield },
+    ],
     armor: [
       {
-        _id: "60d516a0a988d8000875b062",
-        name: "Brigandine",
-        description:
-          " Brigandine armor is clothing reinforced with metal strips between layers of leather or fitted with metal studs. It typically consists of a long-sleeved coat with greaves for the legs.",
-        itemType: "armor",
-        requirement: 11,
-        type: "light",
-        value: 13,
-        price: "5 ss",
-        availability: "C",
-        properties: [],
-        equiped: false,
+        type: armorType,
+        equiped: true,
       },
     ],
   },
-};
-describe("conditional tests", () => {
-  const conditionals = conditionalObject(characterData);
+});
 
-  Object.entries(conditionals).map(([CONDITION_NAME, FUNCTION]) =>
-    it(CONDITION_NAME, () => expect(FUNCTION).toBe(true))
-  );
+describe("item conditional tests", () => {
+  const character_with_heavy_armor = createCharacterData("heavy");
+  const character_with_light_armor = createCharacterData("light");
+  const character_with_medium_armor = createCharacterData("medium");
+  const character_with_no_armor = createCharacterData("None");
+  const character_with_shield = createCharacterData("None", undefined, true);
+
+  describe("Iron Hide", () => {
+    it("No Armor", () =>
+      expect(
+        conditionalObject(character_with_no_armor)["Iron Hide"]
+      ).not.toBeNull());
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Iron Hide"]
+      ).not.toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Iron Hide"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Iron Hide"]
+      ).toBeNull());
+  });
+
+  describe("Shield Master", () => {
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Shield Master"]
+      ).toBeNull());
+    it("With Shield", () =>
+      expect(
+        conditionalObject(character_with_shield)["Shield Master"]
+      ).not.toBeNull());
+  });
+
+  describe("Divine Protection", () => {
+    it("No Armor", () => {
+      expect(
+        conditionalObject(character_with_no_armor)["Divine Protection"]
+      ).not.toBeNull();
+
+      expect(
+        conditionalObject(character_with_no_armor)["Divine Protection"].value
+      ).toBe(1);
+    });
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Divine Protection"]
+      ).toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Divine Protection"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Divine Protection"]
+      ).toBeNull());
+  });
+
+  describe("Divine Protection", () => {
+    it("No Armor", () => {
+      expect(
+        conditionalObject(character_with_no_armor)["Divine Protection"]
+      ).not.toBeNull();
+
+      expect(
+        conditionalObject(character_with_no_armor)["Divine Protection"].value
+      ).toBe(1);
+    });
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Divine Protection"]
+      ).toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Divine Protection"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Divine Protection"]
+      ).toBeNull());
+  });
+
+  describe("Enlightened Defense", () => {
+    it("No Armor", () => {
+      expect(
+        conditionalObject(character_with_no_armor)["Enlightened Defense"]
+      ).not.toBeNull();
+
+      expect(
+        conditionalObject(character_with_no_armor)["Enlightened Defense"].value
+      ).toBe(3);
+    });
+
+    it("With Shield", () =>
+      expect(
+        conditionalObject(character_with_shield)["Enlightened Defense"]
+      ).toBeNull());
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Enlightened Defense"]
+      ).toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Enlightened Defense"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Enlightened Defense"]
+      ).toBeNull());
+  });
+
+  describe("Iron Clad", () => {
+    it("No Armor", () =>
+      expect(
+        conditionalObject(character_with_no_armor)["Iron Clad"]
+      ).toBeNull());
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Iron Clad"]
+      ).toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Iron Clad"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Iron Clad"]
+      ).not.toBeNull());
+  });
 });
