@@ -9,12 +9,6 @@ type ItemConditonal = {
   weaponType?: string[];
 };
 
-type PassiveIncrease = {
-  name: string;
-  characteristic: string;
-  value: number;
-};
-
 function createItemConditonal(
   conditionalObject: ItemConditonal,
   characterData: any
@@ -76,17 +70,6 @@ function createItemConditonal(
   }
 
   return null;
-}
-
-function passiveIncrease(
-  conditionalObject: PassiveIncrease,
-  characterData?: any
-) {
-  return {
-    id: conditionalObject.name,
-    name: conditionalObject.characteristic,
-    value: conditionalObject.value,
-  };
 }
 
 const conditionalObject = (characterData) => ({
@@ -174,16 +157,6 @@ const conditionalObject = (characterData) => ({
     },
     characterData
   ),
-  "Staff of Power": passiveIncrease({
-    name: "Staff of Power",
-    characteristic: "Defense",
-    value: 1,
-  }),
-  "Mighty Thews": passiveIncrease({
-    name: "Mighty Thews",
-    characteristic: "Extra Weapon Damage",
-    value: characterData.characteristics.Strength,
-  }),
 });
 
 export default conditionalObject;

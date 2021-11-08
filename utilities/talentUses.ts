@@ -20,6 +20,11 @@ const talentUsesObject = (characterData) => ({
     1
   ),
   Grit: createUseObject("Grit", "Catch Your Breath", 1),
+  "Divine Ecstasy": createUseObject(
+    "Divine Ecstasy",
+    "Divine Ecstasy",
+    characterData.characteristics.Power
+  ),
 });
 
 export default talentUsesObject;
