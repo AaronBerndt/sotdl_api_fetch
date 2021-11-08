@@ -3,7 +3,7 @@ import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
 import { find, groupBy, sumBy, filter } from "lodash";
-import conditionalObject from "./conditionals";
+import conditionalObject from "../utilities/conditionals";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
