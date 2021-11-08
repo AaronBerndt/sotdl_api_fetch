@@ -88,6 +88,17 @@ function passiveIncrease(
 }
 
 const conditionalObject = (characterData) => ({
+  "Battle Sense": createItemConditonal(
+    {
+      name: "Battle Sense",
+      characteristic: "Defense",
+      value: 2,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium"],
+    },
+    characterData
+  ),
+
   "Iron Hide": createItemConditonal(
     {
       name: "Iron Hide",

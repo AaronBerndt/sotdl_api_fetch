@@ -38,6 +38,26 @@ describe("item conditional tests", () => {
   const character_with_medium_armor = createCharacterData("medium");
   const character_with_no_armor = createCharacterData("None");
   const character_with_shield = createCharacterData("None", undefined, true);
+  describe("Battle Sense", () => {
+    it("No Armor", () =>
+      expect(
+        conditionalObject(character_with_no_armor)["Battle Sense"]
+      ).not.toBeNull());
+
+    it("Light Armor", () =>
+      expect(
+        conditionalObject(character_with_light_armor)["Battle Sense"]
+      ).not.toBeNull());
+
+    it("Medium Armor", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Battle Sense"]
+      ).toBeNull());
+    it("Heavy Armor", () =>
+      expect(
+        conditionalObject(character_with_heavy_armor)["Battle Sense"]
+      ).toBeNull());
+  });
 
   describe("Iron Hide", () => {
     it("No Armor", () =>
