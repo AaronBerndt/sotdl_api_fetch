@@ -38,6 +38,9 @@ describe("item conditional tests", () => {
   const character_with_medium_armor = createCharacterData("medium");
   const character_with_no_armor = createCharacterData("None");
   const character_with_shield = createCharacterData("None", undefined, true);
+
+  const character_with_weapon = createCharacterData("None", "light", true);
+
   describe("Battle Sense", () => {
     it("No Armor", () =>
       expect(
@@ -88,6 +91,13 @@ describe("item conditional tests", () => {
     it("With Shield", () =>
       expect(
         conditionalObject(character_with_shield)["Shield Master"]
+      ).not.toBeNull());
+  });
+
+  describe("Combat Prowess", () => {
+    it("Light Weapon", () =>
+      expect(
+        conditionalObject(character_with_weapon)["Combat Prowess"]
       ).not.toBeNull());
   });
 

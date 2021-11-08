@@ -66,10 +66,12 @@ function createItemConditonal(
         ? conditionalObject.armorType.includes(equipedArmor.type)
         : true) &&
       (conditionalObject?.weaponType
-        ? conditionalObject.weaponType.includes(equipedShield.type)
+        ? conditionalObject.weaponType.includes(equipedShield.type) ||
+          conditionalObject.weaponType.includes("All") ||
+          conditionalObject.weaponType.includes(equipedWeapons.type)
         : true)
     ) {
-      return returnObject;
+      return { ...returnObject, condition: conditionalObject.weaponType };
     }
   }
 
@@ -95,6 +97,26 @@ const conditionalObject = (characterData) => ({
       value: 2,
       condition: "Not Equipped",
       armorType: ["heavy", "medium"],
+    },
+    characterData
+  ),
+  "Combat Prowess": createItemConditonal(
+    {
+      name: "Combat Prowess",
+      characteristic: "Weapon Dice Damage",
+      value: 1,
+      condition: "Equipped",
+      weaponType: ["All"],
+    },
+    characterData
+  ),
+  "Weapon Training": createItemConditonal(
+    {
+      name: "Weapon Training",
+      characteristic: "Weapon Boon",
+      value: 1,
+      condition: "Equipped",
+      weaponType: ["All"],
     },
     characterData
   ),
@@ -159,8 +181,8 @@ const conditionalObject = (characterData) => ({
   }),
   "Mighty Thews": passiveIncrease({
     name: "Mighty Thews",
-    characteristic: "Damage",
-    value: characterData.characteristics.Strength - 10,
+    characteristic: "Extra Weapon Damage",
+    value: characterData.characteristics.Strength,
   }),
 });
 

@@ -126,9 +126,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
       const { Health, Perception, ...rest } = characteristicsObject;
 
+      console.log(characteristicsObject);
       const conditionals = Object.entries(
         conditionalObject({
-          characteristics,
+          characteristics: characteristicsObject,
           items: {
             weapons: characterData.items.weapons,
             armor: characterData.items.armor,
@@ -208,7 +209,54 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         traditions: characterData.traditions,
         attacks: {},
         items: {
-          weapons: characterData.items.weapons,
+          weapons: characterData.items.weapons.map(({ damage, ...rest }) => {
+            const regex = /(-?\d+)/g;
+            const result = damage.match(regex);
+            const diceAmount = result![0];
+            const diceType = result![1];
+            const extraWeaponDamage = result![2];
+            const weaponDamageConditions = filter(conditionals, {
+              name: "Weapon Dice Damage",
+            });
+            ("value");
+
+            const weaponBoonConditions = filter(conditionals, {
+              name: "Weapon Boon",
+            });
+            ("value");
+
+            const extraWeaponDamageConditions = filter(conditionals, {
+              name: "Extra Weapon Damage",
+            });
+            ("value");
+
+            return {
+              ...rest,
+              attackRoll: `+ ${characteristicsObject.Strength - 10} ${
+                weaponBoonConditions
+                  ? `+ ${sumBy(weaponBoonConditions, "value")}B`
+                  : ""
+              }`,
+              damageRoll:
+                weaponDamageConditions.length !== 0
+                  ? `${
+                      Number(diceAmount) +
+                      sumBy(weaponDamageConditions, "value")
+                    }d${diceType}${
+                      extraWeaponDamage || extraWeaponDamageConditions
+                        ? `+ ${
+                            extraWeaponDamage
+                              ? extraWeaponDamage
+                              : 0 +
+                                (extraWeaponDamageConditions
+                                  ? sumBy(extraWeaponDamageConditions, "value")
+                                  : 0)
+                          }`
+                        : ""
+                    }`
+                  : damage,
+            };
+          }),
           armor: characterData.items.armor,
           otherItems: characterData.items.otherItems,
           currency: characterData.items.currency,
