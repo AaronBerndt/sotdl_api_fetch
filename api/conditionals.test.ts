@@ -61,7 +61,7 @@ describe("item conditional tests", () => {
   });
 
   describe("Shield Master", () => {
-    it("Medium Armor", () =>
+    it("No Shield", () =>
       expect(
         conditionalObject(character_with_medium_armor)["Shield Master"]
       ).toBeNull());

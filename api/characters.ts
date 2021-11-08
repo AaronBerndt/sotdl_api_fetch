@@ -125,15 +125,33 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       );
 
       const { Health, Perception, ...rest } = characteristicsObject;
-      const conditionals = conditionalObject({
-        characteristics,
-        items: {
-          weapons: characterData.items.weapons,
-          armor: characterData.items.armor,
-          otherItems: characterData.items.otherItems,
-          currency: characterData.items.currency,
-        },
-      });
+
+      const conditionals = Object.entries(
+        conditionalObject({
+          characteristics,
+          items: {
+            weapons: characterData.items.weapons,
+            armor: characterData.items.armor,
+            otherItems: characterData.items.otherItems,
+            currency: characterData.items.currency,
+          },
+        })
+      )
+        .filter(([NAME]) => {
+          console.log(NAME);
+          return talents.map(({ name }) => name).includes(NAME);
+        })
+        .map((entry) => entry[1])
+        .filter((condition) => condition !== null);
+
+      const equipedWithArmor = characterData.items.armor.filter(
+        ({ equiped }: any) => equiped
+      );
+
+      const equipedDefensiveWeapons = characterData.items.weapons.filter(
+        ({ properties, equiped }: any) =>
+          properties.some((property) => property.match(/Defensive/)) && equiped
+      );
 
       finaldata = {
         _id: id,
@@ -146,6 +164,43 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         characteristics: {
           Health: Health + characteristicsObject.Strength,
           Perception: Perception + characteristicsObject.Intellect,
+          Defense:
+            equipedWithArmor.length === 0
+              ? (characteristicsObject.Defense
+                  ? characteristicsObject.Defense
+                  : 0) +
+                characteristicsObject.Agility +
+                sumBy(filter(conditionals, { name: "Defense" }), "value")
+              : (characteristicsObject.Defense
+                  ? characteristicsObject.Defense
+                  : 0) +
+                  sumBy(filter(conditionals, { name: "Defense" }), "value") +
+                  equipedWithArmor[0].value +
+                  (equipedWithArmor[0].properties.includes("Agility")
+                    ? characteristicsObject.agility
+                    : 0) +
+                  equipedDefensiveWeapons !==
+                0
+              ? Math.max(
+                  ...equipedDefensiveWeapons.map(({ properties }: any) => {
+                    const [defensive] = properties.filter((property: string) =>
+                      property.includes("Defensive")
+                    );
+
+                    const defenseValue = defensive.match(/\d+/);
+
+                    return defenseValue;
+                  })
+                )
+              : 0,
+          Speed:
+            characteristicsObject.speed +
+            (equipedWithArmor.length !== 0
+              ? (characteristicsObject.strength <
+                equipedWithArmor[0].requirement
+                  ? -2
+                  : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
+              : 0),
           ...rest,
         },
         talents: talents,
@@ -162,9 +217,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
-        conditionals: Object.entries(conditionals).filter(([NAME]) =>
-          find(talents, NAME)
-        ),
+        conditionals: conditionals,
         choices: characterData.choices
           ? filterByLevel(characterData.choices)
           : [],
@@ -175,6 +228,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     response.status(200).send(finaldata);
   } catch (e) {
+    console.log(e);
     response.status(504).send(e);
   }
 };
