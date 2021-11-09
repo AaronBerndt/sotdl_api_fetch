@@ -1,5 +1,12 @@
 import { find, filter } from "lodash";
-import { SPEED, STRENGTH_BOON, WEAPON_BOON } from "./constants";
+import {
+  DEFENSE,
+  HEALTH,
+  SPEED,
+  STRENGTH_BOON,
+  WEAPON_BOON,
+  WEAPON_DICE_DAMAGE,
+} from "./constants";
 
 type Conditional = {
   name: string;
@@ -26,13 +33,28 @@ function createInjuredConditona(
   return characterData.characterState.injured ? effectList : null;
 }
 
-function createafflictionConditional(
+function createTraditionConditional(
+  talentName: string,
+  tradition: string,
+  effectList: { name: string; value: number }[],
+  characterData: any
+) {
+  return characterData.spells
+    .map(({ tradition }) => tradition)
+    .includes("tradition")
+    ? effectList
+    : null;
+}
+
+function createAfflictionConditional(
   talentName: string,
   condition: string,
   effectList: { name: string; value: number }[],
   characterData: any
 ) {
-  return characterData.characterState.afflications.includes(condition)
+  return characterData.characterState.afflications
+    .map(({ name }) => name)
+    .includes(condition)
     ? effectList
     : null;
 }
@@ -201,8 +223,9 @@ const conditionalObject = (characterData) => ({
     [createEffect(STRENGTH_BOON, 1), createEffect(WEAPON_BOON, 1)],
     characterData
   ),
-  "Fight or Flight": createInjuredConditona(
+  "Fight or Flight": createAfflictionConditional(
     "Fight or Flight",
+    "frightened",
     [createEffect(SPEED, 2)],
     characterData
   ),
@@ -225,6 +248,39 @@ const conditionalObject = (characterData) => ({
       condition: "Not Equipped",
       armorType: ["heavy", "medium"],
     },
+    characterData
+  ),
+  "Superior Attunement Water": createAfflictionConditional(
+    "Superior Attunement Water",
+    "Water",
+    [createEffect(HEALTH, 6)],
+    characterData
+  ),
+  "Superior Attunement Earth": createAfflictionConditional(
+    "Superior Attunement Earth",
+    "Earth",
+    [createEffect(DEFENSE, 2)],
+    characterData
+  ),
+  "Superior Attunement Air": createAfflictionConditional(
+    "Superior Attunement Air",
+    "Air",
+    [createEffect(SPEED, 4)],
+    characterData
+  ),
+  "Danger Sense": createItemConditonal(
+    {
+      name: "Danger Sense",
+      characteristic: "Defense",
+      value: 2,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium", "light"],
+    },
+    characterData
+  ),
+  Brutality: createInjuredConditona(
+    "Brutality",
+    [createEffect(WEAPON_DICE_DAMAGE, 2)],
     characterData
   ),
 });

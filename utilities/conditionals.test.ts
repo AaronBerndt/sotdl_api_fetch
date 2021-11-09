@@ -3,7 +3,9 @@ import conditionalObject from "./conditionals";
 const createCharacterData = (
   armorType: string,
   weaponType?: string,
-  withShield?: boolean
+  withShield?: boolean,
+  injured?: boolean,
+  withAfflications?: boolean
 ) => ({
   characteristics: {
     Health: 10,
@@ -18,6 +20,16 @@ const createCharacterData = (
     Speed: 10,
     Size: 0.2,
   },
+  characterState: {
+    injured: injured,
+    afflications: withAfflications ? [{ name: "frightened" }] : [],
+  },
+  spells: [
+    { tradition: "Earth" },
+    { tradition: "Wind" },
+    { tradition: "Water" },
+  ],
+
   items: {
     weapons: [
       { type: weaponType, equiped: weaponType !== undefined },
@@ -38,8 +50,21 @@ describe("item conditional tests", () => {
   const character_with_medium_armor = createCharacterData("medium");
   const character_with_no_armor = createCharacterData("None");
   const character_with_shield = createCharacterData("None", undefined, true);
-
   const character_with_weapon = createCharacterData("None", "light", true);
+  const character_injured = createCharacterData(
+    "None",
+    "light",
+    true,
+    true,
+    false
+  );
+  const character_with_afflications = createCharacterData(
+    "None",
+    "light",
+    true,
+    false,
+    true
+  );
 
   describe("Battle Sense", () => {
     it("No Armor", () =>
@@ -214,5 +239,55 @@ describe("item conditional tests", () => {
       expect(
         conditionalObject(character_with_shield)["Off-Hand Parry"]
       ).toBeNull());
+  });
+  describe("Strength from Pain", () => {
+    it("Injured", () =>
+      expect(
+        conditionalObject(character_injured)["Strength from Pain"]
+      ).not.toBeNull());
+    it("Not Injured", () =>
+      expect(
+        conditionalObject(character_with_shield)["Strength from Pain"]
+      ).toBeNull());
+  });
+  describe("Strength from Pain", () => {
+    it("Injured", () =>
+      expect(
+        conditionalObject(character_injured)["Strength from Pain"]
+      ).not.toBeNull());
+    it("Not Injured", () =>
+      expect(
+        conditionalObject(character_with_shield)["Strength from Pain"]
+      ).toBeNull());
+  });
+  describe("Fight or Flight", () => {
+    it("Frightened", () =>
+      expect(
+        conditionalObject(character_with_afflications)["Fight or Flight"]
+      ).not.toBeNull());
+    it("Not frightened", () =>
+      expect(
+        conditionalObject(character_with_shield)["Fight or Flight"]
+      ).toBeNull());
+  });
+  describe("Superior Attunement", () => {
+    it("Superior Attunement Earth", () =>
+      expect(
+        conditionalObject(character_with_afflications)[
+          "Superior Attunement Earth"
+        ]
+      ).not.toBeNull());
+    it("Superior Attunement Air", () =>
+      expect(
+        conditionalObject(character_with_afflications)[
+          "Superior Attunement Air"
+        ]
+      ).not.toBeNull());
+    it("Superior Attunement Wind", () =>
+      expect(
+        conditionalObject(character_with_afflications)[
+          "Superior Attunement Wind"
+        ]
+      ).not.toBeNull());
   });
 });

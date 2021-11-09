@@ -55,6 +55,16 @@ const talentUsesObject = (characterData) => ({
     "Esoteric Knowledge",
     1
   ),
+  "Invoke the Cosmic Egg": createUseObject(
+    "Invoke the Cosmic Egg",
+    "Invoke the Cosmic Egg",
+    1 + characterData.characteristics.Power
+  ),
+  "Gather Shadows": createUseObject(
+    "Gather Shadows",
+    "Gather Shadows",
+    1 + characterData.characteristics.Power
+  ),
 });
 
 export default talentUsesObject;

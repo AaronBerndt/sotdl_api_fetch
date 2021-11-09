@@ -5,6 +5,7 @@ import {
   INTELLECT_BOON,
   PERCEPTION,
   PERCEPTION_BOON,
+  SIZE,
   SPEED,
   SPELL_BOON,
   SPELL_DICE_DAMAGE,
@@ -13,6 +14,7 @@ import {
   WEAPON_DICE_DAMAGE,
   WILL_BOON,
 } from "./constants";
+import { range } from "lodash";
 
 const createTemporaryEffectsList = (
   talentName: string,
@@ -132,6 +134,81 @@ const temporaryEffectsObject = (characterData) => ({
   "Qi Focus": createTemporaryEffectsList(
     "Qi Focus",
     [createEffect(DEFENSE, 1), createEffect(SPEED, 4)],
+    characterData
+  ),
+  "Guardian Of Nature": createTemporaryEffectsList(
+    "Guardian Of Nature",
+    [
+      createEffect(DEFENSE, 2),
+      createEffect(HEALTH, 10),
+      createEffect(SIZE, 1),
+      createEffect(SPEED, 2),
+      createEffect(WEAPON_DICE_DAMAGE, 1),
+    ],
+    characterData
+  ),
+  "Combat Feint": createTemporaryEffectsList(
+    "Combat Feint",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Devious Strike": createTemporaryEffectsList(
+    "Devious Strike",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData,
+    "Combat Feint"
+  ),
+  "Mental Might": createTemporaryEffectsList(
+    "Mental Might",
+    [createEffect(WEAPON_BOON, 1), createEffect(SPELL_BOON, 1)],
+    characterData,
+    "Focused"
+  ),
+  "Enlightened Focus": createTemporaryEffectsList(
+    "Enlightened Focus",
+    [
+      createEffect(HEALTH, 5),
+      createEffect(SPEED, 2),
+      createEffect(WEAPON_DICE_DAMAGE, 1),
+    ],
+    characterData,
+    "Focused"
+  ),
+  "Powered by Storm": createTemporaryEffectsList(
+    "Powered by Storm",
+    [
+      createEffect(HEALTH, 5),
+      createEffect(WEAPON_BOON, 1),
+      createEffect(SPELL_BOON, 1),
+    ],
+    characterData
+  ),
+
+  ...range(0, 11).map((rank) => ({
+    [`Telekinetic Armor ${rank}`]: createTemporaryEffectsList(
+      `Telekinetic Armor ${rank}`,
+      [createEffect(DEFENSE, 1 + rank)],
+      characterData
+    ),
+  })),
+  ...range(0, 11).map((rank) => ({
+    [`Guarded Casting ${rank}`]: createTemporaryEffectsList(
+      `Guarded Casting ${rank}`,
+      [createEffect(DEFENSE, 1 + rank)],
+      characterData
+    ),
+  })),
+  ...range(0, 11).map((rank) => ({
+    [`Metallic Sheen ${rank}`]: createTemporaryEffectsList(
+      `Metallic Sheen ${rank}`,
+      [createEffect(DEFENSE, 1 + rank)],
+      characterData
+    ),
+  })),
+
+  "Zephyr Form": createTemporaryEffectsList(
+    "Zephyr Form",
+    [createEffect(SPEED, 6)],
     characterData
   ),
 });

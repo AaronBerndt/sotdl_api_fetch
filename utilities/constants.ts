@@ -1,3 +1,4 @@
+export const SIZE = "Size";
 export const HEALTH = "Health";
 export const PERCEPTION = "Perception";
 export const DEFENSE = "Defense";
@@ -18,6 +19,10 @@ export const AGLITY_BANE = "Agility Bane";
 export const PERCEPTION_BOON = "Perception Boon";
 export const WEAPON_DICE_DAMAGE = "Weapon Dice Damage";
 export const EXTRA_WEAPON_DAMAGE = "Extra Dice Damage";
+
+export const SWIFT_WEAPON_BOON = "Swift Weapon Boon";
+export const SWIFT_WEAPON_DICE_DAMAGE = "Swift Weapon Dice Damage";
+
 export const SPELL_DICE_DAMAGE = "Spell Dice Damage";
 export const LEVEL_0_SPELL_CASTING = "Level 0 Spell Castings";
 export const LEVEL_1_SPELL_CASTING = "Level 1 Spell Castings";

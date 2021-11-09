@@ -11,6 +11,13 @@ import {
   STRENGTH_BOON,
   WILL_BANE,
   INTELLECT_BOON,
+  DEFENSE,
+  HEALTH,
+  SPEED,
+  AGLITY_BOON,
+  WILL_BOON,
+  SWIFT_WEAPON_BOON,
+  SWIFT_WEAPON_DICE_DAMAGE,
 } from "./constants";
 
 type PassiveIncrease = {
@@ -118,6 +125,52 @@ const passiveIncreaseObject = (characterData) => ({
   Learned: createPassiveEffect(
     "Learned",
     [createEffect(INTELLECT_BOON, 1)],
+    characterData
+  ),
+  "Superior Attunement Water": createPassiveEffect(
+    "Superior Attunement Water",
+    [createEffect(HEALTH, 5)],
+    characterData
+  ),
+  "Superior Attunement Earth": createPassiveEffect(
+    "Superior Attunement Earth",
+    [createEffect(DEFENSE, 1)],
+    characterData
+  ),
+  "Superior Attunement Air": createPassiveEffect(
+    "Superior Attunement Air",
+    [createEffect(SPEED, 2)],
+    characterData
+  ),
+  "Fists of Fury": createPassiveEffect(
+    "Fists of Fury",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Countless Lives": createPassiveEffect(
+    "Countless Lives",
+    [
+      createEffect(STRENGTH_BOON, 1),
+      createEffect(WILL_BOON, 1),
+      createEffect(INTELLECT_BOON, 1),
+      createEffect(AGLITY_BOON, 1),
+      createEffect(PERCEPTION_BOON, 1),
+    ],
+    characterData
+  ),
+  "Swift Weapon Mastery": createPassiveEffect(
+    "Swift Weapon Mastery",
+    [createEffect(WEAPON_DICE_DAMAGE, 1), createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Hafted Weapon Expertise": createPassiveEffect(
+    "Hafted Weapon Expertise",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Uncanny Alertness": createPassiveEffect(
+    "Uncanny Alertness",
+    [createEffect(PERCEPTION_BOON, 1)],
     characterData
   ),
 });
