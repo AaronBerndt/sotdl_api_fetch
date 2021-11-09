@@ -3,8 +3,10 @@ import {
   DEFENSE,
   HEALTH,
   INTELLECT_BOON,
+  PERCEPTION,
   PERCEPTION_BOON,
   SPEED,
+  SPELL_BOON,
   SPELL_DICE_DAMAGE,
   STRENGTH_BOON,
   WEAPON_BOON,
@@ -69,6 +71,68 @@ const temporaryEffectsObject = (characterData) => ({
     ],
     characterData,
     "Divine Ecstasy"
+  ),
+  "Primal Beast": createTemporaryEffectsList(
+    "Primal Beast",
+    [createEffect(SPEED, 2), createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData,
+    "Beast Within"
+  ),
+  "Battle Stance": createTemporaryEffectsList(
+    "Battle Stance",
+    [createEffect(WEAPON_BOON, 1), createEffect(SPELL_BOON, 1)],
+    characterData
+  ),
+  "Battle Chant": createTemporaryEffectsList(
+    "Battle Stance",
+    [
+      createEffect(WEAPON_BOON, 1),
+      createEffect(SPELL_BOON, 1),
+      createEffect(WEAPON_DICE_DAMAGE, 1),
+    ],
+    characterData
+  ),
+  "Watery Form": createTemporaryEffectsList(
+    "Watery Form",
+    [createEffect(AGLITY_BOON, 1)],
+    characterData
+  ),
+  "Staff of Magic": createTemporaryEffectsList(
+    "Staff of Magic",
+    [createEffect(SPELL_BOON, 1), createEffect(SPELL_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Staff of Power": createTemporaryEffectsList(
+    "Staff of Power",
+    [createEffect(SPELL_BOON, 1), createEffect(DEFENSE, 1)],
+    characterData,
+    "Staff of Magic"
+  ),
+  "Sigils of Power": createTemporaryEffectsList(
+    "Sigils of Power",
+    [createEffect(WEAPON_DICE_DAMAGE, 1), createEffect(SPELL_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Stand Guard": createTemporaryEffectsList(
+    "Stand Guard",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Favored Weapon": createTemporaryEffectsList(
+    "Favored Weapon",
+    [createEffect(WEAPON_BOON, 1), createEffect(DEFENSE, 1)],
+    characterData
+  ),
+  "Weapon Specialization": createTemporaryEffectsList(
+    "Weapon Specialization",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData,
+    "Favored Weapon"
+  ),
+  "Qi Focus": createTemporaryEffectsList(
+    "Qi Focus",
+    [createEffect(DEFENSE, 1), createEffect(SPEED, 4)],
+    characterData
   ),
 });
 

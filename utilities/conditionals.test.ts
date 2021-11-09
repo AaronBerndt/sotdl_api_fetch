@@ -204,4 +204,15 @@ describe("item conditional tests", () => {
         conditionalObject(character_with_heavy_armor)["Iron Clad"]
       ).not.toBeNull());
   });
+
+  describe("Off-Hand Parry", () => {
+    it("No Shield", () =>
+      expect(
+        conditionalObject(character_with_medium_armor)["Off-Hand Parry"]
+      ).not.toBeNull());
+    it("With Shield", () =>
+      expect(
+        conditionalObject(character_with_shield)["Off-Hand Parry"]
+      ).toBeNull());
+  });
 });

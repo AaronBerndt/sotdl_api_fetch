@@ -8,7 +8,7 @@ const talentUsesObject = (characterData) => ({
   "Spell Recovery": createUseObject("Spell Recovery", "Spell Recovery", 1),
   "Shared Recovery": createUseObject("Shared Recovery", "Shared Recovery", 1),
   "Improved Shared Recovery": createUseObject(
-    "Shared Recovery",
+    "Improved Shared Recovery",
     "Shared Recovery",
     1
   ),
@@ -24,6 +24,36 @@ const talentUsesObject = (characterData) => ({
     "Divine Ecstasy",
     "Divine Ecstasy",
     characterData.characteristics.Power
+  ),
+  "Sense Enemies": createUseObject(
+    "Sense Enemies",
+    "Sense Enemies",
+    characterData.characteristics.Power
+  ),
+  "Holy Radiance": createUseObject(
+    "Holy Radiance",
+    "Holy Radiance",
+    characterData.characteristics.Power
+  ),
+  "Steal Spell": createUseObject("Steal Spell", "Steal Spell", 1),
+  "Spell Thief Mastery": createUseObject(
+    "Spell Thief Mastery",
+    "Steal Spell",
+    1
+  ),
+  "Battle Chant": createUseObject("Battle Chant", "Battle Chant", 3),
+  Perseverance: createUseObject("Perseverance", "Perseverance", 1),
+  "Healing Trance": createUseObject("Healing Trance", "Healing Trance", 1),
+  "Psychic Power": createUseObject(
+    "Psychic Power",
+    "Psychic Power",
+    2 + characterData.characteristics.Power
+  ),
+
+  "Esoteric Knowledge": createUseObject(
+    "Esoteric Knowledge",
+    "Esoteric Knowledge",
+    1
   ),
 });
 

@@ -1,4 +1,11 @@
 import { find, filter } from "lodash";
+import { SPEED, STRENGTH_BOON, WEAPON_BOON } from "./constants";
+
+type Conditional = {
+  name: string;
+  characteristic: string;
+  value: number;
+};
 
 type ItemConditonal = {
   name: string;
@@ -8,6 +15,27 @@ type ItemConditonal = {
   armorType?: string[];
   weaponType?: string[];
 };
+
+const createEffect = (name, value) => ({ name, value });
+
+function createInjuredConditona(
+  talentName: string,
+  effectList: { name: string; value: number }[],
+  characterData: any
+) {
+  return characterData.characterState.injured ? effectList : null;
+}
+
+function createafflictionConditional(
+  talentName: string,
+  condition: string,
+  effectList: { name: string; value: number }[],
+  characterData: any
+) {
+  return characterData.characterState.afflications.includes(condition)
+    ? effectList
+    : null;
+}
 
 function createItemConditonal(
   conditionalObject: ItemConditonal,
@@ -114,6 +142,7 @@ const conditionalObject = (characterData) => ({
     },
     characterData
   ),
+
   "Shield Master": createItemConditonal(
     {
       name: "Shield Master",
@@ -154,6 +183,47 @@ const conditionalObject = (characterData) => ({
       value: 1,
       condition: "Equipped",
       armorType: ["heavy"],
+    },
+    characterData
+  ),
+  "Off-Hand Parry": createItemConditonal(
+    {
+      name: "Off-Hand Parry",
+      characteristic: "Defense",
+      value: 1,
+      condition: "Not Equipped",
+      weaponType: ["shield"],
+    },
+    characterData
+  ),
+  "Strength from Pain": createInjuredConditona(
+    "Strength from Pain",
+    [createEffect(STRENGTH_BOON, 1), createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Fight or Flight": createInjuredConditona(
+    "Fight or Flight",
+    [createEffect(SPEED, 2)],
+    characterData
+  ),
+
+  "Nimble Defense": createItemConditonal(
+    {
+      name: "Nimble Defense",
+      characteristic: "Defense",
+      value: 1,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium"],
+    },
+    characterData
+  ),
+  "Unassailable Defense": createItemConditonal(
+    {
+      name: "Unassailable Defense",
+      characteristic: "Defense",
+      value: 2,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium"],
     },
     characterData
   ),
