@@ -52,7 +52,7 @@ function createAfflictionConditional(
   effectList: { name: string; value: number }[],
   characterData: any
 ) {
-  return characterData.characterState.afflications
+  return characterData.characterState.afflictions
     .map(({ name }) => name)
     .includes(condition)
     ? effectList
@@ -133,6 +133,17 @@ const conditionalObject = (characterData) => ({
     },
     characterData
   ),
+  "Improved Battle Sense": createItemConditonal(
+    {
+      name: "Improved Battle Sense",
+      characteristic: "Defense",
+      value: 2,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium"],
+    },
+    characterData
+  ),
+
   "Combat Prowess": createItemConditonal(
     {
       name: "Combat Prowess",

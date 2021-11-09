@@ -4,6 +4,7 @@ import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
 import { find, groupBy, sumBy, filter } from "lodash";
 import conditionalObject from "../utilities/conditionals";
+import passiveIncreaseObject from "../utilities/passiveIncrease";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -126,7 +127,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
       const { Health, Perception, ...rest } = characteristicsObject;
 
-      console.log(characteristicsObject);
       const conditionals = Object.entries(
         conditionalObject({
           characteristics: characteristicsObject,
@@ -136,14 +136,38 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             otherItems: characterData.items.otherItems,
             currency: characterData.items.currency,
           },
+          characterState: {
+            ...characterData.characterState,
+            injured: false,
+          },
         })
       )
         .filter(([NAME]) => {
-          console.log(NAME);
           return talents.map(({ name }) => name).includes(NAME);
         })
         .map((entry) => entry[1])
         .filter((condition) => condition !== null);
+
+      const passiveIncreases = Object.entries(
+        passiveIncreaseObject({
+          characteristics: characteristicsObject,
+          items: {
+            weapons: characterData.items.weapons,
+            armor: characterData.items.armor,
+            otherItems: characterData.items.otherItems,
+            currency: characterData.items.currency,
+          },
+          characterState: {
+            ...characterData.characterState,
+            injured: false,
+          },
+          spells: characterData.spells,
+        })
+      )
+        .filter(([NAME]) => {
+          return talents.map(({ name }) => name).includes(NAME);
+        })
+        .map((entry) => entry[1]);
 
       const equipedWithArmor = characterData.items.armor.filter(
         ({ equiped }: any) => equiped
@@ -154,6 +178,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           properties.some((property) => property.match(/Defensive/)) && equiped
       );
 
+      const talentIncreases = [...conditionals, ...passiveIncreases];
+
       finaldata = {
         _id: id,
         name: characterData.name,
@@ -163,7 +189,16 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         expertPath: characterData.expertPath,
         masterPath: characterData.masterPath,
         characteristics: {
-          Health: Health + characteristicsObject.Strength,
+          Health:
+            Health +
+            characteristicsObject.Strength +
+            sumBy(
+              filter(talentIncreases, {
+                name: "Health",
+              }),
+              "value"
+            ),
+
           Perception: Perception + characteristicsObject.Intellect,
           Defense:
             equipedWithArmor.length === 0
@@ -171,11 +206,16 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   ? characteristicsObject.Defense
                   : 0) +
                 characteristicsObject.Agility +
-                sumBy(filter(conditionals, { name: "Defense" }), "value")
+                sumBy(
+                  filter(talentIncreases, {
+                    name: "Defense",
+                  }),
+                  "value"
+                )
               : (characteristicsObject.Defense
                   ? characteristicsObject.Defense
                   : 0) +
-                  sumBy(filter(conditionals, { name: "Defense" }), "value") +
+                  sumBy(filter(talentIncreases, { name: "Defense" }), "value") +
                   equipedWithArmor[0].value +
                   (equipedWithArmor[0].properties.includes("Agility")
                     ? characteristicsObject.agility
@@ -215,17 +255,17 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             const diceAmount = result![0];
             const diceType = result![1];
             const extraWeaponDamage = result![2];
-            const weaponDamageConditions = filter(conditionals, {
+            const weaponDamageConditions = filter(talentIncreases, {
               name: "Weapon Dice Damage",
             });
             ("value");
 
-            const weaponBoonConditions = filter(conditionals, {
+            const weaponBoonConditions = filter(talentIncreases, {
               name: "Weapon Boon",
             });
             ("value");
 
-            const extraWeaponDamageConditions = filter(conditionals, {
+            const extraWeaponDamageConditions = filter(talentIncreases, {
               name: "Extra Weapon Damage",
             });
             ("value");
