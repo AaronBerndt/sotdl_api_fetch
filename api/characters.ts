@@ -269,6 +269,12 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         }),
         spells: spells.map((spell) => {
           const { attribute, damage, tradition, ...rest } = spell;
+          const regex = /(-?\d+)/g;
+          const result = damage ? damage.match(regex) : "";
+          const diceAmount = damage ? result![0] : "";
+          const diceType = damage ? result![1] : "";
+          const extraSpellDamage = damage ? result![2] : "";
+
           const spellDamageConditionals = filter(talentIncreases, {
             name: "Spell Dice Damage",
           });
@@ -289,10 +295,22 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           });
           ("value");
 
+          const extraDamageDice = sumBy(
+            [...spellDamageConditionals, spellDamageConditionalsWithType],
+            "value"
+          );
+
           const boons = sumBy(
             [...spellBoonConditionals, spellBoonConditionalsWithType],
             "value"
           );
+
+          const newDiceAmount =
+            diceType === "3"
+              ? `${diceAmount}d${diceType} ${
+                  extraDamageDice !== 0 ? `+ ${extraDamageDice}d6` : ""
+                } ${extraSpellDamage ? `+ ${extraSpellDamage}` : ""}`
+              : `${Number(diceAmount) + extraDamageDice}d${diceType}`;
           return {
             ...rest,
             attribute,
@@ -301,9 +319,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   characteristicsObject[
                     attribute === "Intellect" ? "Intellect" : "Will"
                   ] - 10
-                }${boons ? `+ ${boons}B` : ""}`
+                }${boons ? ` + ${boons}B` : ""}`
               : null,
-            damageRoll: `${damage ? damage : null}`,
+            damageRoll: `${damage ? newDiceAmount : null}`,
           };
         }),
         traditions: characterData.traditions,
