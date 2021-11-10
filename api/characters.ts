@@ -6,6 +6,7 @@ import { find, groupBy, sumBy, filter, flatten } from "lodash";
 import conditionalObject from "../utilities/conditionals";
 import passiveIncreaseObject from "../utilities/passiveIncrease";
 import temporaryEffectsObject from "../utilities/temporaryEffects";
+import talentUsesObject from "../utilities/talentUses";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -172,6 +173,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           .filter((passiveIncrease) => passiveIncrease !== null)
       );
 
+      const talentUses: any = flatten(
+        Object.entries(talentUsesObject(characterDataObject))
+          .map((entry) => entry[1])
+          .filter((talentUse) =>
+            talents.map(({ name }) => name).includes(talentUse.name)
+          )
+      );
+
       const equipedWithArmor = characterData.items.armor.filter(
         ({ equiped }: any) => equiped
       );
@@ -251,7 +260,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               : 0),
           ...rest,
         },
-        talents: talents,
+        talents: talents.map((talent) => {
+          const uses = find(talentUses, { name: talent.name });
+          if (uses) {
+            return { ...talent, uses: uses.value };
+          }
+          return talent;
+        }),
         spells: spells.map((spell) => {
           const { attribute, damage, tradition, ...rest } = spell;
           const spellDamageConditionals = filter(talentIncreases, {
@@ -281,12 +296,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           return {
             ...rest,
             attribute,
-            attackRoll: `${
-              characteristicsObject[
-                attribute === "Intellect" ? "Intellect" : "Will"
-              ] - 10
-            }${boons ? `+ ${boons}B` : ""}`,
-            damageRoll: `${damage ? damage : ""}`,
+            attackRoll: spell.description.includes("attack roll")
+              ? `${
+                  characteristicsObject[
+                    attribute === "Intellect" ? "Intellect" : "Will"
+                  ] - 10
+                }${boons ? `+ ${boons}B` : ""}`
+              : null,
+            damageRoll: `${damage ? damage : null}`,
           };
         }),
         traditions: characterData.traditions,
