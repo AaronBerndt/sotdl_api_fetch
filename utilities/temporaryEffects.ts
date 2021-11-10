@@ -21,13 +21,14 @@ const createTemporaryEffectsList = (
   effectList: { name: string; value: number }[],
   characterData: any,
   talentToChange?: string
-) =>
-  characterData.characterState.temporaryEffects.includes(talentName)
+) => {
+  return characterData.characterState.temporaryEffects.includes(talentName)
     ? effectList.map((effect) => ({
         id: talentToChange ? talentToChange : talentName,
         ...effect,
       }))
     : null;
+};
 
 const createEffect = (name, value) => ({ name, value });
 
@@ -38,7 +39,7 @@ const temporaryEffectsObject = (characterData) => ({
     characterData
   ),
   Beserk: createTemporaryEffectsList(
-    "Beserk",
+    "Berserk",
     [
       createEffect(WEAPON_BOON, 1),
       createEffect(HEALTH, 10),

@@ -2,9 +2,10 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
-import { find, groupBy, sumBy, filter } from "lodash";
+import { find, groupBy, sumBy, filter, flatten } from "lodash";
 import conditionalObject from "../utilities/conditionals";
 import passiveIncreaseObject from "../utilities/passiveIncrease";
+import temporaryEffectsObject from "../utilities/temporaryEffects";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -23,6 +24,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       });
 
       const paths = await fetchCollection("paths");
+
+      const spells =
+        characterData.spells.length === 0
+          ? []
+          : await fetchCollection("spells", {
+              $or: characterData.spells.map((name: any) => ({ name })),
+            });
 
       const filterByLevel = (array) =>
         array.filter(({ level }) => level <= characterData.level);
@@ -127,20 +135,21 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
       const { Health, Perception, ...rest } = characteristicsObject;
 
+      const characterDataObject = {
+        characteristics: characteristicsObject,
+        items: {
+          weapons: characterData.items.weapons,
+          armor: characterData.items.armor,
+          otherItems: characterData.items.otherItems,
+          currency: characterData.items.currency,
+        },
+        characterState: {
+          ...characterData.characterState,
+          injured: false,
+        },
+      };
       const conditionals = Object.entries(
-        conditionalObject({
-          characteristics: characteristicsObject,
-          items: {
-            weapons: characterData.items.weapons,
-            armor: characterData.items.armor,
-            otherItems: characterData.items.otherItems,
-            currency: characterData.items.currency,
-          },
-          characterState: {
-            ...characterData.characterState,
-            injured: false,
-          },
-        })
+        conditionalObject(characterDataObject)
       )
         .filter(([NAME]) => {
           return talents.map(({ name }) => name).includes(NAME);
@@ -149,25 +158,19 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         .filter((condition) => condition !== null);
 
       const passiveIncreases = Object.entries(
-        passiveIncreaseObject({
-          characteristics: characteristicsObject,
-          items: {
-            weapons: characterData.items.weapons,
-            armor: characterData.items.armor,
-            otherItems: characterData.items.otherItems,
-            currency: characterData.items.currency,
-          },
-          characterState: {
-            ...characterData.characterState,
-            injured: false,
-          },
-          spells: characterData.spells,
-        })
+        passiveIncreaseObject(characterDataObject)
       )
         .filter(([NAME]) => {
           return talents.map(({ name }) => name).includes(NAME);
         })
-        .map((entry) => entry[1]);
+        .map((entry) => entry[1])
+        .filter((passiveIncrease) => passiveIncrease !== null);
+
+      const temporaryEffects: any = flatten(
+        Object.entries(temporaryEffectsObject(characterDataObject))
+          .map((entry) => entry[1])
+          .filter((passiveIncrease) => passiveIncrease !== null)
+      );
 
       const equipedWithArmor = characterData.items.armor.filter(
         ({ equiped }: any) => equiped
@@ -178,7 +181,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           properties.some((property) => property.match(/Defensive/)) && equiped
       );
 
-      const talentIncreases = [...conditionals, ...passiveIncreases];
+      const talentIncreases = [
+        ...conditionals,
+        ...passiveIncreases,
+        ...temporaryEffects,
+      ];
 
       finaldata = {
         _id: id,
@@ -245,58 +252,112 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           ...rest,
         },
         talents: talents,
-        spells: characterData.spells,
+        spells: spells.map((spell) => {
+          const { attribute, damage, tradition, ...rest } = spell;
+          const spellDamageConditionals = filter(talentIncreases, {
+            name: "Spell Dice Damage",
+          });
+          ("value");
+
+          const spellBoonConditionals = filter(talentIncreases, {
+            name: `Spell Boon`,
+          });
+          ("value");
+
+          const spellDamageConditionalsWithType = filter(talentIncreases, {
+            name: `${tradition} Spell Dice Damage`,
+          });
+          ("value");
+
+          const spellBoonConditionalsWithType = filter(talentIncreases, {
+            name: `${tradition} Spell Boon`,
+          });
+          ("value");
+
+          const boons = sumBy(
+            [...spellBoonConditionals, spellBoonConditionalsWithType],
+            "value"
+          );
+          return {
+            ...rest,
+            attribute,
+            attackRoll: `${
+              characteristicsObject[
+                attribute === "Intellect" ? "Intellect" : "Will"
+              ] - 10
+            }${boons ? `+ ${boons}B` : ""}`,
+            damageRoll: `${damage ? damage : ""}`,
+          };
+        }),
         traditions: characterData.traditions,
-        attacks: {},
         items: {
-          weapons: characterData.items.weapons.map(({ damage, ...rest }) => {
-            const regex = /(-?\d+)/g;
-            const result = damage.match(regex);
-            const diceAmount = result![0];
-            const diceType = result![1];
-            const extraWeaponDamage = result![2];
-            const weaponDamageConditions = filter(talentIncreases, {
-              name: "Weapon Dice Damage",
-            });
-            ("value");
+          weapons: characterData.items.weapons.map(
+            ({ damage, properties, ...rest }) => {
+              const regex = /(-?\d+)/g;
+              const result = damage.match(regex);
+              const diceAmount = result![0];
+              const diceType = result![1];
+              const extraWeaponDamage = result![2];
+              const weaponDamageConditions = filter(talentIncreases, {
+                name: "Weapon Dice Damage",
+              });
+              ("value");
 
-            const weaponBoonConditions = filter(talentIncreases, {
-              name: "Weapon Boon",
-            });
-            ("value");
+              const weaponBoonConditions = filter(talentIncreases, {
+                name: "Weapon Boon",
+              });
+              ("value");
 
-            const extraWeaponDamageConditions = filter(talentIncreases, {
-              name: "Extra Weapon Damage",
-            });
-            ("value");
+              const weaponBaneConditions = filter(talentIncreases, {
+                name: "Weapon Boon",
+              });
+              ("value");
 
-            return {
-              ...rest,
-              attackRoll: `+ ${characteristicsObject.Strength - 10} ${
-                weaponBoonConditions
-                  ? `+ ${sumBy(weaponBoonConditions, "value")}B`
-                  : ""
-              }`,
-              damageRoll:
-                weaponDamageConditions.length !== 0
-                  ? `${
-                      Number(diceAmount) +
-                      sumBy(weaponDamageConditions, "value")
-                    }d${diceType}${
-                      extraWeaponDamage || extraWeaponDamageConditions
-                        ? `+ ${
-                            extraWeaponDamage
-                              ? extraWeaponDamage
-                              : 0 +
-                                (extraWeaponDamageConditions
-                                  ? sumBy(extraWeaponDamageConditions, "value")
-                                  : 0)
-                          }`
-                        : ""
-                    }`
-                  : damage,
-            };
-          }),
+              const extraWeaponDamageConditions = filter(talentIncreases, {
+                name: "Extra Weapon Damage",
+              });
+              ("value");
+
+              const boons = sumBy(weaponBoonConditions, "value");
+              const banes =
+                sumBy(weaponBaneConditions, "value") +
+                (properties.includes("Cumbersome") ? 1 : 0) +
+                (properties.includes(/Strength/) ? 1 : 0);
+
+              const totalBB = boons - banes;
+
+              return {
+                ...rest,
+                properties,
+                attackRoll: `+ ${characteristicsObject.Strength - 10} ${
+                  totalBB !== 0
+                    ? `${boons > banes ? "+" : "-"} ${totalBB}B`
+                    : ""
+                }`,
+                damageRoll:
+                  weaponDamageConditions.length !== 0
+                    ? `${
+                        Number(diceAmount) +
+                        sumBy(weaponDamageConditions, "value")
+                      }d${diceType}${
+                        extraWeaponDamage || extraWeaponDamageConditions
+                          ? `+ ${
+                              extraWeaponDamage
+                                ? extraWeaponDamage
+                                : 0 +
+                                  (extraWeaponDamageConditions
+                                    ? sumBy(
+                                        extraWeaponDamageConditions,
+                                        "value"
+                                      )
+                                    : 0)
+                            }`
+                          : ""
+                      }`
+                    : damage,
+              };
+            }
+          ),
           armor: characterData.items.armor,
           otherItems: characterData.items.otherItems,
           currency: characterData.items.currency,
