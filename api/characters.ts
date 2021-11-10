@@ -134,7 +134,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const { Health, Perception, ...rest } = characteristicsObject;
+      const {
+        Health,
+        Perception,
+        Speed,
+        Defense,
+        ...rest
+      } = characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -149,6 +155,40 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           injured: false,
         },
       };
+
+      console.log(characterData.characterState.affliction);
+      const afflictionsBanes = characterData.characterState.afflictions.filter(
+        ({ name }) =>
+          [
+            "Fatigued",
+            "Frightened",
+            "Diseased",
+            "Impaired",
+            "Poisoned",
+          ].includes(name)
+      ).length;
+
+      const defenseBecomes5 =
+        characterData.characterState.afflictions.filter(({ name }) =>
+          ["Unconscious", "Defenseless"].includes(name)
+        ).length !== 0;
+
+      const speedBecomes2 =
+        find(characterData.characterState.afflictions, {
+          name: "Blinded",
+        }) !== undefined;
+
+      const speedBecomes0 =
+        find(characterData.characterState.afflictions, {
+          name: "Immobilized",
+        }) !== undefined;
+
+      const speedIsHalved =
+        find(characterData.characterState.afflictions, {
+          name: "Slowed",
+        }) !== undefined;
+
+      console.log(speedIsHalved, speedBecomes0, speedBecomes2);
       const conditionals = Object.entries(
         conditionalObject(characterDataObject)
       )
@@ -216,48 +256,52 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             ),
 
           Perception: Perception + characteristicsObject.Intellect,
-          Defense:
-            equipedWithArmor.length === 0
-              ? (characteristicsObject.Defense
-                  ? characteristicsObject.Defense
+          Defense: defenseBecomes5
+            ? 5
+            : equipedWithArmor.length === 0
+            ? (characteristicsObject.Defense
+                ? characteristicsObject.Defense
+                : 0) +
+              characteristicsObject.Agility +
+              sumBy(
+                filter(talentIncreases, {
+                  name: "Defense",
+                }),
+                "value"
+              )
+            : (characteristicsObject.Defense
+                ? characteristicsObject.Defense
+                : 0) +
+                sumBy(filter(talentIncreases, { name: "Defense" }), "value") +
+                equipedWithArmor[0].value +
+                (equipedWithArmor[0].properties.includes("Agility")
+                  ? characteristicsObject.agility
                   : 0) +
-                characteristicsObject.Agility +
-                sumBy(
-                  filter(talentIncreases, {
-                    name: "Defense",
-                  }),
-                  "value"
-                )
-              : (characteristicsObject.Defense
-                  ? characteristicsObject.Defense
-                  : 0) +
-                  sumBy(filter(talentIncreases, { name: "Defense" }), "value") +
-                  equipedWithArmor[0].value +
-                  (equipedWithArmor[0].properties.includes("Agility")
-                    ? characteristicsObject.agility
-                    : 0) +
-                  equipedDefensiveWeapons !==
-                0
-              ? Math.max(
-                  ...equipedDefensiveWeapons.map(({ properties }: any) => {
-                    const [defensive] = properties.filter((property: string) =>
-                      property.includes("Defensive")
-                    );
+                equipedDefensiveWeapons !==
+              0
+            ? Math.max(
+                ...equipedDefensiveWeapons.map(({ properties }: any) => {
+                  const [defensive] = properties.filter((property: string) =>
+                    property.includes("Defensive")
+                  );
 
-                    const defenseValue = defensive.match(/\d+/);
+                  const defenseValue = defensive.match(/\d+/);
 
-                    return defenseValue;
-                  })
-                )
-              : 0,
-          Speed:
-            characteristicsObject.speed +
-            (equipedWithArmor.length !== 0
-              ? (characteristicsObject.strength <
-                equipedWithArmor[0].requirement
-                  ? -2
-                  : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
-              : 0),
+                  return defenseValue;
+                })
+              )
+            : 0,
+          Speed: speedBecomes0
+            ? 0
+            : speedBecomes2
+            ? 2
+            : characteristicsObject.speed +
+              (equipedWithArmor.length !== 0
+                ? (characteristicsObject.strength <
+                  equipedWithArmor[0].requirement
+                    ? -2
+                    : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
+                : 0 / (speedIsHalved ? 2 : 1)),
           ...rest,
         },
         talents: talents.map((talent) => {
@@ -305,6 +349,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             "value"
           );
 
+          const totalBB = boons - afflictionsBanes;
+
           const newDiceAmount =
             diceType === "3"
               ? `${diceAmount}d${diceType} ${
@@ -319,7 +365,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   characteristicsObject[
                     attribute === "Intellect" ? "Intellect" : "Will"
                   ] - 10
-                }${boons ? ` + ${boons}B` : ""}`
+                }${boons > afflictionsBanes ? "+" : "-"} ${totalBB}B`
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
           };
@@ -357,7 +403,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               const banes =
                 sumBy(weaponBaneConditions, "value") +
                 (properties.includes("Cumbersome") ? 1 : 0) +
-                (properties.includes(/Strength/) ? 1 : 0);
+                (properties.includes(/Strength/) ? 1 : 0) +
+                afflictionsBanes;
 
               const totalBB = boons - banes;
 
