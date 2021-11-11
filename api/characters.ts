@@ -401,6 +401,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               });
               ("value");
 
+              const { Strength, Agility } = characteristicsObject;
               const boons = sumBy(weaponBoonConditions, "value");
               const banes =
                 sumBy(weaponBaneConditions, "value") +
@@ -408,14 +409,21 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                 (properties.includes(/Strength/) ? 1 : 0) +
                 afflictionsBanes;
 
-              const totalBB = boons - banes;
+              const totalBB = Math.abs(boons - banes);
+
+              const attackRoll =
+                (properties.includes("Finesse")
+                  ? Agility > Strength
+                    ? Agility
+                    : Strength
+                  : Strength) - 10;
 
               return {
                 ...rest,
                 properties,
-                attackRoll: `+ ${characteristicsObject.Strength - 10} ${
+                attackRoll: `${attackRoll < 0 ? "-" : "+"} ${attackRoll}${
                   totalBB !== 0
-                    ? `${boons > banes ? "+" : "-"} ${totalBB}B`
+                    ? `${boons > banes ? " +" : " -"} ${totalBB}B`
                     : ""
                 }`,
                 damageRoll:
