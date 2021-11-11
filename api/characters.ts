@@ -295,13 +295,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             ? 0
             : speedBecomes2
             ? 2
-            : characteristicsObject.speed +
-              (equipedWithArmor.length !== 0
-                ? (characteristicsObject.strength <
-                  equipedWithArmor[0].requirement
-                    ? -2
-                    : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
-                : 0 / (speedIsHalved ? 2 : 1)),
+            : Math.round(
+                characteristicsObject.speed +
+                  (equipedWithArmor.length !== 0
+                    ? (characteristicsObject.strength <
+                      equipedWithArmor[0].requirement
+                        ? -2
+                        : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
+                    : 0 / (speedIsHalved ? 2 : 1))
+              ),
           ...rest,
         },
         talents: talents.map((talent) => {
