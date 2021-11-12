@@ -295,9 +295,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             : speedBecomes2
             ? 2
             : Math.round(
-                characteristicsObject.speed +
+                characteristicsObject.Speed +
                   (equipedWithArmor.length !== 0
-                    ? (characteristicsObject.strength <
+                    ? (characteristicsObject.Strength <
                       equipedWithArmor[0].requirement
                         ? -2
                         : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
