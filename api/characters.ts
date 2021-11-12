@@ -307,10 +307,21 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         },
         talents: talents.map((talent) => {
           const uses = find(talentUses, { name: talent.name });
-          if (uses) {
-            return { ...talent, uses: uses.value };
-          }
-          return talent;
+          const withToggle = find(temporaryEffects, { name: talent.name });
+
+          let type = /can use a triggered action/gm.test(talent.description)
+            ? "triggered"
+            : /heal damage equal to your healing rate/gm.test(
+                talent.description
+              )
+            ? "heal"
+            : "none";
+          return {
+            ...talent,
+            uses: uses ? uses.value : null,
+            withToggle: withToggle,
+            type,
+          };
         }),
         spells: spells.map((spell) => {
           const { attribute, damage, tradition, ...rest } = spell;
