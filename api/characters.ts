@@ -307,7 +307,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         },
         talents: talents.map((talent) => {
           const uses = find(talentUses, { name: talent.name });
-          const withToggle = find(temporaryEffects, { name: talent.name });
+          const passive = find(passiveIncreases, { name: talent.name });
+          const conditional = find(conditionals, { name: talent.name });
+          const toggle = find(temporaryEffects, { name: talent.name });
 
           let type = /can use a triggered action/gm.test(talent.description)
             ? "triggered"
@@ -315,11 +317,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                 talent.description
               )
             ? "heal"
-            : "none";
+            : passiveIncreases || conditional
+            ? "passive"
+            : toggle
+            ? "toggle"
+            : "attack";
           return {
             ...talent,
             uses: uses ? uses.value : null,
-            withToggle: withToggle,
             type,
           };
         }),
