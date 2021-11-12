@@ -7,6 +7,7 @@ import conditionalObject from "../utilities/conditionals";
 import passiveIncreaseObject from "../utilities/passiveIncrease";
 import temporaryEffectsObject from "../utilities/temporaryEffects";
 import talentUsesObject from "../utilities/talentUses";
+import createCastingObject from "../utilities/spellCastings";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -134,13 +135,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const {
-        Health,
-        Perception,
-        Speed,
-        Defense,
-        ...rest
-      } = characteristicsObject;
+      const { Health, Perception, Speed, Defense, ...rest } =
+        characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -156,7 +152,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         },
       };
 
-      console.log(characterData.characterState.affliction);
       const afflictionsBanes = characterData.characterState.afflictions.filter(
         ({ name }) =>
           [
@@ -188,7 +183,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name: "Slowed",
         }) !== undefined;
 
-      console.log(speedIsHalved, speedBecomes0, speedBecomes2);
       const conditionals = Object.entries(
         conditionalObject(characterDataObject)
       )
@@ -228,6 +222,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const equipedDefensiveWeapons = characterData.items.weapons.filter(
         ({ properties, equiped }: any) =>
           properties.some((property) => property.match(/Defensive/)) && equiped
+      );
+
+      const spellCastings = createCastingObject(
+        characteristicsObject.Power,
+        passiveIncreases
       );
 
       const talentIncreases = [
@@ -362,6 +361,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           return {
             ...rest,
             attribute,
+            castings: spellCastings[rest.level],
             attackRoll: spell.description.includes("attack roll")
               ? `${
                   characteristicsObject[
@@ -421,11 +421,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               return {
                 ...rest,
                 properties,
-                attackRoll: `${attackRoll < 0 ? "-" : "+"} ${attackRoll}${
+                attackRoll: `${attackRoll < 0 ? "-" : "+"} ${attackRoll}`,
+                totalBB:
                   totalBB !== 0
-                    ? `${boons > banes ? " +" : " -"} ${totalBB}B`
-                    : ""
-                }`,
+                    ? `${boons > banes ? " +" : " -"} ${totalBB}`
+                    : 0,
                 damageRoll:
                   weaponDamageConditions.length !== 0
                     ? `${
