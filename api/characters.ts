@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 import { find, groupBy, sumBy, filter, flatten } from "lodash";
 import conditionalObject from "../utilities/conditionals";
 import passiveIncreaseObject from "../utilities/passiveIncrease";
-import temporaryEffectsObject from "../utilities/temporaryEffects";
+import temporaryEffectsObject, {temporaryEffectsList} from "../utilities/temporaryEffects";
 import talentUsesObject from "../utilities/talentUses";
 import createCastingObject from "../utilities/spellCastings";
 const cors = microCors();
@@ -309,8 +309,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           const uses = find(talentUses, { name: talent.name });
           const passive = find(passiveIncreases, { name: talent.name });
           const conditional = find(conditionals, { name: talent.name });
-          const toggle = find(temporaryEffects, { name: talent.name });
+          const toggle = temporaryEffectsList.includes(talent.name);
 
+          console.log(temporaryEffects);
           let type = /can use a triggered action/gm.test(talent.description)
             ? "triggered"
             : /heal damage equal to your healing rate/gm.test(

@@ -16,6 +16,34 @@ import {
 } from "./constants";
 import { range } from "lodash";
 
+export const temporaryEffectsList = [
+  "Killer’s Eye",
+  "Berserk",
+  "Ferocious Wrath",
+  "Divine Ecstasy",
+  "Avatar",
+  "Primal Beast",
+  "Battle Stance",
+  "Battle Chant",
+  "Watery Form",
+  "Staff of Magic",
+  "Sigils of Power",
+  "Stand Guard",
+  "Favored Weapon",
+  "Weapon Specialization",
+  "Qi Focus",
+  "Guardian Of Nature",
+  "Combat Feint",
+  "Devious Strike",
+  "Mental Might",
+  "Enlightened Focus",
+  "Powered by Storm",
+  "Telekinetic Armor",
+  "Guarded Casting",
+  "Metallic Sheen",
+  "Zephyr Form",
+];
+
 const createTemporaryEffectsList = (
   talentName: string,
   effectList: { name: string; value: number }[],
