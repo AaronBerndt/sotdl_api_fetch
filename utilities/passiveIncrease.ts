@@ -47,6 +47,27 @@ const passiveIncreaseObject = (characterData) => ({
     [createEffect(WEAPON_BOON, 1)],
     characterData
   ),
+  "Barbarian Weapon Training": createPassiveEffect(
+    "Barbarian Weapon Training",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Knightly Training": createPassiveEffect(
+    "Knightly Training",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+  "Combat Prowess": createPassiveEffect(
+    "Combat Prowess",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+
+  "Combat Training": createPassiveEffect(
+    "Combat Training",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
 
   "Icon of Faith": createPassiveEffect(
     "Icon of Faith",

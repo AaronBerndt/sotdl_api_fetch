@@ -7,12 +7,35 @@ const createUseObject = (id, talentName, value) => ({
 const talentUsesObject = (characterData) => ({
   "Spell Recovery": createUseObject("Spell Recovery", "Spell Recovery", 1),
   "Shared Recovery": createUseObject("Shared Recovery", "Shared Recovery", 1),
+  "Brutal Recovery": createUseObject("Brutal Recovery", "Brutal Recovery", 1),
+  "Nimble Recovery": createUseObject("Nimble Recovery", "Nimble Recovery", 1),
+  "Swift Recovery": createUseObject("Swift Recovery", "Nimble Recovery", 1),
+  "Furious Recovery": createUseObject(
+    "Furious Recovery",
+    "Furious Recovery",
+    1
+  ),
+  "Improved Furious Recovery": createUseObject(
+    "Improved Furious Recovery",
+    "Furious Recovery",
+    1
+  ),
+  "Mounted Recovery": createUseObject(
+    "Mounted Recovery",
+    "Mounted Recovery",
+    1
+  ),
+  "Improved Mounted Recovery": createUseObject(
+    "Improved Mounted Recovery",
+    "Mounted Recovery",
+    1
+  ),
+
   "Improved Shared Recovery": createUseObject(
     "Improved Shared Recovery",
     "Shared Recovery",
     1
   ),
-  "Nimble Recovery": createUseObject("Nimble Recovery", "Nimble Recovery", 1),
 
   "Catch Your Breath": createUseObject(
     "Catch Your Breath",
