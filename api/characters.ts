@@ -236,11 +236,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         passiveIncreases
       );
 
-      const talentIncreases = [
+      const talentIncreases = flatten([
         ...conditionals,
         ...passiveIncreases,
         ...temporaryEffects,
-      ];
+      ]);
+
+      console.log(talentUses);
 
       finaldata = {
         _id: id,
@@ -260,6 +262,17 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               }),
               "value"
             ),
+          HealingRate: Math.round(
+            (Health +
+              characteristicsObject.Strength +
+              sumBy(
+                filter(talentIncreases, {
+                  name: "Health",
+                }),
+                "value"
+              )) /
+              (find(talentIncreases, { id: "Durable" }) ? 3 : 4)
+          ),
 
           Perception: Perception + characteristicsObject.Intellect,
           Defense: defenseBecomes5
@@ -313,12 +326,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           ...rest,
         },
         talents: talents.map((talent) => {
-          const uses = find(talentUses, { name: talent.name });
+          const uses = talentUses.filter(({ name }) => name === talent.name);
           const passive = find(passiveIncreases, { name: talent.name });
           const conditional = find(conditionals, { name: talent.name });
           const toggle = temporaryEffectsList.includes(talent.name);
 
-          console.log(temporaryEffects);
+          console.log(uses);
+
           let type = /can use a triggered action/gm.test(talent.description)
             ? "triggered"
             : /heal damage equal to your healing rate/gm.test(
@@ -332,7 +346,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             : "attack";
           return {
             ...talent,
-            uses: uses ? uses.value : null,
+            uses: uses ? sumBy(uses, "value") : null,
             type,
           };
         }),

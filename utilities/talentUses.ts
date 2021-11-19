@@ -19,6 +19,8 @@ const talentUsesObject = (characterData) => ({
     "Catch Your Breath",
     1
   ),
+  "Shake it Off": createUseObject("Shake it Off", "Shake it Off", 1),
+
   Grit: createUseObject("Grit", "Catch Your Breath", 1),
   "Divine Ecstasy": createUseObject(
     "Divine Ecstasy",
