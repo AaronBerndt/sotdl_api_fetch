@@ -66,7 +66,7 @@ const temporaryEffectsObject = (characterData) => ({
     [createEffect(WEAPON_BOON, 1), createEffect(WEAPON_DICE_DAMAGE, 2)],
     characterData
   ),
-  Beserk: createTemporaryEffectsList(
+  Berserk: createTemporaryEffectsList(
     "Berserk",
     [
       createEffect(WEAPON_BOON, 1),

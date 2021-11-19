@@ -5,7 +5,9 @@ import { ObjectId } from "mongodb";
 import { find, groupBy, sumBy, filter, flatten } from "lodash";
 import conditionalObject from "../utilities/conditionals";
 import passiveIncreaseObject from "../utilities/passiveIncrease";
-import temporaryEffectsObject, {temporaryEffectsList} from "../utilities/temporaryEffects";
+import temporaryEffectsObject, {
+  temporaryEffectsList,
+} from "../utilities/temporaryEffects";
 import talentUsesObject from "../utilities/talentUses";
 import createCastingObject from "../utilities/spellCastings";
 const cors = microCors();
@@ -135,8 +137,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const { Health, Perception, Speed, Defense, ...rest } =
-        characteristicsObject;
+      const {
+        Health,
+        Perception,
+        Speed,
+        Defense,
+        ...rest
+      } = characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -318,7 +325,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                 talent.description
               )
             ? "heal"
-            : passiveIncreases || conditional
+            : passive || conditional
             ? "passive"
             : toggle
             ? "toggle"
