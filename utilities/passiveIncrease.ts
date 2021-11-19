@@ -42,6 +42,12 @@ function createPassiveEffect(
 const createEffect = (name, value) => ({ name, value });
 
 const passiveIncreaseObject = (characterData) => ({
+  "Weapon Training": createPassiveEffect(
+    "Weapon Training",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+
   "Icon of Faith": createPassiveEffect(
     "Icon of Faith",
     [createEffect(SPELL_BOON, 1)],
