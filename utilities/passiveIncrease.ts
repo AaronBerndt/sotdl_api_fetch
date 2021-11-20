@@ -57,8 +57,44 @@ const passiveIncreaseObject = (characterData) => ({
     [createEffect(WEAPON_BOON, 1)],
     characterData
   ),
+  "Finesse Weapon Training": createPassiveEffect(
+    "Finesse Weapon Training",
+    [createEffect(WEAPON_BOON, 1)],
+    characterData
+  ),
+
   "Combat Prowess": createPassiveEffect(
     "Combat Prowess",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Vicious Assault": createPassiveEffect(
+    "Vicious Assault",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Deadly Accuracy": createPassiveEffect(
+    "Deadly Accuracy",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Hunter’s Expertise": createPassiveEffect(
+    "Hunter’s Expertise",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Hunter’s Mastery": createPassiveEffect(
+    "Hunter’s Mastery",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Unarmed Prowess": createPassiveEffect(
+    "Unarmed Prowess",
+    [createEffect(WEAPON_DICE_DAMAGE, 1)],
+    characterData
+  ),
+  "Unarmed Combat Training": createPassiveEffect(
+    "Unarmed Combat Training",
     [createEffect(WEAPON_DICE_DAMAGE, 1)],
     characterData
   ),

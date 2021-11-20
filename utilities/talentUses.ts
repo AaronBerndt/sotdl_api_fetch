@@ -10,6 +10,18 @@ const talentUsesObject = (characterData) => ({
   "Brutal Recovery": createUseObject("Brutal Recovery", "Brutal Recovery", 1),
   "Nimble Recovery": createUseObject("Nimble Recovery", "Nimble Recovery", 1),
   "Swift Recovery": createUseObject("Swift Recovery", "Nimble Recovery", 1),
+
+  "Defense Recovery": createUseObject(
+    "Defense Recovery",
+    "Defense Recovery",
+    1
+  ),
+  "Improved Defense Recovery": createUseObject(
+    "Improved Defense Recovery",
+    "Defense Recovery",
+    1
+  ),
+
   "Furious Recovery": createUseObject(
     "Furious Recovery",
     "Furious Recovery",

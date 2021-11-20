@@ -144,27 +144,6 @@ const conditionalObject = (characterData) => ({
     characterData
   ),
 
-  "Combat Prowess": createItemConditonal(
-    {
-      name: "Combat Prowess",
-      characteristic: "Weapon Dice Damage",
-      value: 1,
-      condition: "Equipped",
-      weaponType: ["All"],
-    },
-    characterData
-  ),
-  "Weapon Training": createItemConditonal(
-    {
-      name: "Weapon Training",
-      characteristic: "Weapon Boon",
-      value: 1,
-      condition: "Equipped",
-      weaponType: ["All"],
-    },
-    characterData
-  ),
-
   "Iron Hide": createItemConditonal(
     {
       name: "Iron Hide",
@@ -172,6 +151,17 @@ const conditionalObject = (characterData) => ({
       value: 1,
       condition: "Not Equipped",
       armorType: ["heavy", "medium"],
+    },
+    characterData
+  ),
+  "Daring Defense": createItemConditonal(
+    {
+      name: "Daring Defense",
+      characteristic: "Defense",
+      value: 4,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium"],
+      weaponType: ["shield"],
     },
     characterData
   ),
@@ -194,6 +184,18 @@ const conditionalObject = (characterData) => ({
       value: 1 + Math.max(0, characterData.characteristics.Will - 10),
       condition: "Not Equipped",
       armorType: ["heavy", "medium", "light"],
+    },
+    characterData
+  ),
+
+  "Unarmored Defense": createItemConditonal(
+    {
+      name: "Unarmored Defense",
+      characteristic: "Defense",
+      value: 3,
+      condition: "Not Equipped",
+      armorType: ["heavy", "medium", "light", "shield"],
+      weaponType: ["shield"],
     },
     characterData
   ),
