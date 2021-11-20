@@ -69,7 +69,7 @@ const passiveIncreaseObject = (characterData) => ({
     characterData
   ),
   "Vicious Assault": createPassiveEffect(
-    "Vicious Assault",
+    p > "Vicious Assault",
     [createEffect(WEAPON_DICE_DAMAGE, 1)],
     characterData
   ),
@@ -93,6 +93,12 @@ const passiveIncreaseObject = (characterData) => ({
     [createEffect(WEAPON_DICE_DAMAGE, 1)],
     characterData
   ),
+  "Potent Spellcasting": createPassiveEffect(
+    "Potent Spellcasting",
+    [createEffect(SPELL_BOON, 1)],
+    characterData
+  ),
+
   "Unarmed Combat Training": createPassiveEffect(
     "Unarmed Combat Training",
     [createEffect(WEAPON_DICE_DAMAGE, 1)],

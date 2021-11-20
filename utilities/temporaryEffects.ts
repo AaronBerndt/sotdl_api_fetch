@@ -1,5 +1,6 @@
 import {
   AGLITY_BOON,
+  ATTACK_AGAINST_BANE,
   DEFENSE,
   HEALTH,
   INTELLECT_BOON,
@@ -42,6 +43,7 @@ export const temporaryEffectsList = [
   "Guarded Casting",
   "Metallic Sheen",
   "Zephyr Form",
+  "Protective Winds",
 ];
 
 const createTemporaryEffectsList = (
@@ -238,6 +240,16 @@ const temporaryEffectsObject = (characterData) => ({
   "Zephyr Form": createTemporaryEffectsList(
     "Zephyr Form",
     [createEffect(SPEED, 6)],
+    characterData
+  ),
+  "Protective Winds": createTemporaryEffectsList(
+    "Protective Winds",
+    [createEffect(SPEED, 2), createEffect(ATTACK_AGAINST_BANE, 2)],
+    characterData
+  ),
+  "Arcane Defense": createTemporaryEffectsList(
+    "Arcane Defense",
+    [createEffect(ATTACK_AGAINST_BANE, 1)],
     characterData
   ),
 });

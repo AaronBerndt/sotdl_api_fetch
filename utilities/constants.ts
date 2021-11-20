@@ -26,3 +26,5 @@ export const SWIFT_WEAPON_DICE_DAMAGE = "Swift Weapon Dice Damage";
 export const SPELL_DICE_DAMAGE = "Spell Dice Damage";
 export const LEVEL_0_SPELL_CASTING = "Level 0 Spell Castings";
 export const LEVEL_1_SPELL_CASTING = "Level 1 Spell Castings";
+
+export const ATTACK_AGAINST_BANE = "ATTACK_AGAINST_BANE";
