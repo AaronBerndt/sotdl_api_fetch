@@ -346,7 +346,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             : "attack";
           return {
             ...talent,
-            uses: uses ? sumBy(uses, "value") : null,
+            ...(uses !== 0
+              ? {
+                  uses: uses ? sumBy(uses, "value") : null,
+                }
+              : {}),
             type,
           };
         }),
@@ -389,13 +393,19 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           );
 
           const totalBB = boons - afflictionsBanes;
+          console.log(diceAmount, extraSpellDamage, extraDamageDice);
 
           const newDiceAmount =
             diceType === "3"
               ? `${diceAmount}d${diceType} ${
                   extraDamageDice !== 0 ? `+ ${extraDamageDice}d6` : ""
                 } ${extraSpellDamage ? `+ ${extraSpellDamage}` : ""}`
-              : `${Number(diceAmount) + extraDamageDice}d${diceType}`;
+              : `${
+                  Number(diceAmount) +
+                  (extraDamageDice ? Number(extraDamageDice) : 0)
+                }d${diceType}`;
+
+          console.log(newDiceAmount);
           return {
             ...rest,
             attribute,
@@ -450,7 +460,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               const totalBB = Math.abs(boons - banes);
 
               const attackRoll =
-                (properties.includes("Finesse")
+                (properties.includes("Finesse") || properties.includes("Reload")
                   ? Agility > Strength
                     ? Agility
                     : Strength
@@ -459,11 +469,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               return {
                 ...rest,
                 properties,
-                attackRoll: `${attackRoll < 0 ? "-" : "+"} ${attackRoll}`,
+                attackRoll: `${attackRoll < 0 ? "-" : "+"}${attackRoll}`,
                 totalBB:
-                  totalBB !== 0
-                    ? `${boons > banes ? " +" : " -"} ${totalBB}`
-                    : 0,
+                  totalBB !== 0 ? `${boons > banes ? "" : "-"}${totalBB}` : 0,
                 damageRoll:
                   weaponDamageConditions.length !== 0
                     ? `${

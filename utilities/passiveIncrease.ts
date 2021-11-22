@@ -69,7 +69,7 @@ const passiveIncreaseObject = (characterData) => ({
     characterData
   ),
   "Vicious Assault": createPassiveEffect(
-    p > "Vicious Assault",
+    "Vicious Assault",
     [createEffect(WEAPON_DICE_DAMAGE, 1)],
     characterData
   ),
