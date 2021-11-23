@@ -504,7 +504,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
-        conditionals: conditionals,
         choices: characterData.choices
           ? filterByLevel(characterData.choices)
           : [],
