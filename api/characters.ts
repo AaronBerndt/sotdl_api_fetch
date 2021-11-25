@@ -129,7 +129,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) }));
 
       const characteristicsObject = Object.assign(
-        {},
+        { Defense: 0 },
         ...Object.entries(groupBy(characteristics, "name")).map(
           ([NAME, VALUES]: any) => ({
             [NAME]: sumBy(VALUES, "value"),
@@ -222,11 +222,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           )
       );
 
-      const equipedWithArmor = characterData.items.armor.filter(
+      const equippedWithArmor = characterData.items.armor.filter(
         ({ equiped }: any) => equiped
       );
 
-      const equipedDefensiveWeapons = characterData.items.weapons.filter(
+      const equippedDefensiveWeapons = characterData.items.weapons.filter(
         ({ properties, equiped }: any) =>
           properties.some((property) => property.match(/Defensive/)) && equiped
       );
@@ -241,8 +241,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         ...passiveIncreases,
         ...temporaryEffects,
       ]);
-
-      console.log(talentUses);
 
       finaldata = {
         _id: id,
@@ -277,50 +275,28 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           Perception: Perception + characteristicsObject.Intellect,
           Defense: defenseBecomes5
             ? 5
-            : equipedWithArmor.length === 0
-            ? (characteristicsObject.Defense
-                ? characteristicsObject.Defense
-                : 0) +
-              characteristicsObject.Agility +
-              sumBy(
-                filter(talentIncreases, {
-                  name: "Defense",
-                }),
-                "value"
-              )
-            : (characteristicsObject.Defense
-                ? characteristicsObject.Defense
-                : 0) +
-                sumBy(filter(talentIncreases, { name: "Defense" }), "value") +
-                equipedWithArmor[0].value +
-                (equipedWithArmor[0].properties.includes("Agility")
-                  ? characteristicsObject.agility
-                  : 0) +
-                equipedDefensiveWeapons !==
-              0
-            ? Math.max(
-                ...equipedDefensiveWeapons.map(({ properties }: any) => {
-                  const [defensive] = properties.filter((property: string) =>
-                    property.includes("Defensive")
-                  );
+            : (equippedWithArmor.length === 0
+                ? characteristicsObject.Defense + characteristicsObject.Agility
+                : equippedWithArmor[0].value +
+                  (equippedWithArmor[0].properties.includes("Agility")
+                    ? characteristicsObject.Agility
+                    : 0)) +
+              sumBy(filter(talentIncreases, { name: "Defense" })) +
+              (equippedDefensiveWeapons.length !== 0
+                ? equippedDefensiveWeapons[0].defenseValue
+                : 0),
 
-                  const defenseValue = defensive.match(/\d+/);
-
-                  return defenseValue;
-                })
-              )
-            : 0,
           Speed: speedBecomes0
             ? 0
             : speedBecomes2
             ? 2
             : Math.round(
                 characteristicsObject.Speed +
-                  (equipedWithArmor.length !== 0
+                  (equippedWithArmor.length !== 0
                     ? (characteristicsObject.Strength <
-                      equipedWithArmor[0].requirement
+                      equippedWithArmor[0].requirement
                         ? -2
-                        : 0) + (equipedWithArmor[0].type === "heavy" ? -2 : 0)
+                        : 0) + (equippedWithArmor[0].type === "heavy" ? -2 : 0)
                     : 0 / (speedIsHalved ? 2 : 1))
               ),
           ...rest,
