@@ -281,7 +281,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   (equippedWithArmor[0].properties.includes("Agility")
                     ? characteristicsObject.Agility
                     : 0)) +
-              sumBy(filter(talentIncreases, { name: "Defense" })) +
+              sumBy(filter(talentIncreases, { name: "Defense" }), "value") +
               (equippedDefensiveWeapons.length !== 0
                 ? equippedDefensiveWeapons[0].defenseValue
                 : 0),
@@ -307,8 +307,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           const conditional = find(conditionals, { name: talent.name });
           const toggle = temporaryEffectsList.includes(talent.name);
 
-          console.log(uses);
-
           let type = /can use a triggered action/gm.test(talent.description)
             ? "triggered"
             : /heal damage equal to your healing rate/gm.test(
@@ -319,10 +317,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             ? "passive"
             : toggle
             ? "toggle"
-            : "attack";
+            : /make a Will attack roll/gm.test(talent.description)
+            ? "attack"
+            : "passive";
+
           return {
             ...talent,
-            ...(uses !== 0
+            ...(uses.length !== 0
               ? {
                   uses: uses ? sumBy(uses, "value") : null,
                 }
@@ -381,7 +382,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   (extraDamageDice ? Number(extraDamageDice) : 0)
                 }d${diceType}`;
 
-          console.log(newDiceAmount);
           return {
             ...rest,
             attribute,
