@@ -28,6 +28,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       });
 
       const paths = await fetchCollection("paths");
+      const items = await fetchCollection("items");
 
       const spells =
         characterData.spells.length === 0
@@ -222,8 +223,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           )
       );
 
-      const equippedWithArmor = characterData.items.armor.filter(
-        ({ equiped }: any) => equiped
+      const equippedWithArmor = characterData.characterState.equipped.filter(
+        ({ equipped }: any) => equipped
       );
 
       const equippedDefensiveWeapons = characterData.items.weapons.filter(
@@ -450,24 +451,26 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   totalBB !== 0 ? `${boons > banes ? "" : "-"}${totalBB}` : 0,
                 damageRoll:
                   weaponDamageConditions.length !== 0
-                    ? `${
-                        Number(diceAmount) +
-                        sumBy(weaponDamageConditions, "value")
-                      }d${diceType}${
-                        extraWeaponDamage || extraWeaponDamageConditions
-                          ? `+ ${
-                              extraWeaponDamage
-                                ? extraWeaponDamage
-                                : 0 +
-                                  (extraWeaponDamageConditions
-                                    ? sumBy(
-                                        extraWeaponDamageConditions,
-                                        "value"
-                                      )
-                                    : 0)
-                            }`
-                          : ""
-                      }`
+                    ? diceAmount
+                      ? `${
+                          Number(diceAmount) +
+                          sumBy(weaponDamageConditions, "value")
+                        }d${diceType}${
+                          extraWeaponDamage || extraWeaponDamageConditions
+                            ? `+ ${
+                                extraWeaponDamage
+                                  ? extraWeaponDamage
+                                  : 0 +
+                                    (extraWeaponDamageConditions
+                                      ? sumBy(
+                                          extraWeaponDamageConditions,
+                                          "value"
+                                        )
+                                      : 0)
+                              }`
+                            : ""
+                        }`
+                      : damage
                     : damage,
               };
             }
