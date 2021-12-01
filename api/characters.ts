@@ -138,13 +138,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const {
-        Health,
-        Perception,
-        Speed,
-        Defense,
-        ...rest
-      } = characteristicsObject;
+      const { Health, Perception, Speed, Defense, ...rest } =
+        characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -223,13 +218,47 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           )
       );
 
-      const equippedWithArmor = characterData.characterState.equipped.filter(
+      const equippedGear = characterData.characterState.equipped.filter(
         ({ equipped }: any) => equipped
       );
 
-      const equippedDefensiveWeapons = characterData.items.weapons.filter(
-        ({ properties, equiped }: any) =>
-          properties.some((property) => property.match(/Defensive/)) && equiped
+      const equippedWithArmor = equippedGear
+        .filter((gear) =>
+          find(items, {
+            name: gear.name,
+            itemType: "armor",
+          })
+        )
+        .map((gear) => {
+          const { _id, ...rest } = find(items, {
+            name: gear.name,
+            itemType: "armor",
+          });
+
+          return { _id: gear._id, ...rest, equipped: gear.equipped };
+        });
+
+      console.log(equippedWithArmor);
+
+      const equippedWeapons = equippedGear
+        .filter((gear) =>
+          find(items, {
+            name: gear.name,
+            itemType: "weapon",
+          })
+        )
+        .map((gear) => {
+          const { _id, ...rest } = find(items, {
+            name: gear.name,
+            itemType: "weapon",
+          });
+
+          return { _id: gear._id, ...rest, equipped: gear.equipped };
+        });
+
+      const equippedDefensiveWeapons = equippedWeapons.filter(
+        ({ properties }: any) =>
+          properties.some((property) => property.match(/Defensive/))
       );
 
       const spellCastings = createCastingObject(
@@ -371,7 +400,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           );
 
           const totalBB = boons - afflictionsBanes;
-          console.log(diceAmount, extraSpellDamage, extraDamageDice);
 
           const newDiceAmount =
             diceType === "3"
@@ -399,83 +427,81 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         }),
         traditions: characterData.traditions,
         items: {
-          weapons: characterData.items.weapons.map(
-            ({ damage, properties, ...rest }) => {
-              const regex = /(-?\d+)/g;
-              const result = damage.match(regex);
-              const diceAmount = result![0];
-              const diceType = result![1];
-              const extraWeaponDamage = result![2];
-              const weaponDamageConditions = filter(talentIncreases, {
-                name: "Weapon Dice Damage",
-              });
-              ("value");
+          weapons: equippedWeapons.map(({ damage, properties, ...rest }) => {
+            const regex = /(-?\d+)/g;
+            const result = damage.match(regex);
+            const diceAmount = result![0];
+            const diceType = result![1];
+            const extraWeaponDamage = result![2];
+            const weaponDamageConditions = filter(talentIncreases, {
+              name: "Weapon Dice Damage",
+            });
+            ("value");
 
-              const weaponBoonConditions = filter(talentIncreases, {
-                name: "Weapon Boon",
-              });
-              ("value");
+            const weaponBoonConditions = filter(talentIncreases, {
+              name: "Weapon Boon",
+            });
+            ("value");
 
-              const weaponBaneConditions = filter(talentIncreases, {
-                name: "Weapon Boon",
-              });
-              ("value");
+            const weaponBaneConditions = filter(talentIncreases, {
+              name: "Weapon Boon",
+            });
+            ("value");
 
-              const extraWeaponDamageConditions = filter(talentIncreases, {
-                name: "Extra Weapon Damage",
-              });
-              ("value");
+            const extraWeaponDamageConditions = filter(talentIncreases, {
+              name: "Extra Weapon Damage",
+            });
+            ("value");
 
-              const { Strength, Agility } = characteristicsObject;
-              const boons = sumBy(weaponBoonConditions, "value");
-              const banes =
-                sumBy(weaponBaneConditions, "value") +
-                (properties.includes("Cumbersome") ? 1 : 0) +
-                (properties.includes(/Strength/) ? 1 : 0) +
-                afflictionsBanes;
+            const { Strength, Agility } = characteristicsObject;
+            const boons = sumBy(weaponBoonConditions, "value");
+            const banes =
+              sumBy(weaponBaneConditions, "value") +
+              (properties.includes("Cumbersome") ? 1 : 0) +
+              (properties.includes(/Strength/) ? 1 : 0) +
+              afflictionsBanes;
 
-              const totalBB = Math.abs(boons - banes);
+            const totalBB = Math.abs(boons - banes);
 
-              const attackRoll =
-                (properties.includes("Finesse") || properties.includes("Reload")
-                  ? Agility > Strength
-                    ? Agility
-                    : Strength
-                  : Strength) - 10;
+            const attackRoll =
+              (properties.includes("Finesse") || properties.includes("Reload")
+                ? Agility > Strength
+                  ? Agility
+                  : Strength
+                : Strength) - 10;
 
-              return {
-                ...rest,
-                properties,
-                attackRoll: `${attackRoll < 0 ? "-" : "+"}${attackRoll}`,
-                totalBB:
-                  totalBB !== 0 ? `${boons > banes ? "" : "-"}${totalBB}` : 0,
-                damageRoll:
-                  weaponDamageConditions.length !== 0
-                    ? diceAmount
-                      ? `${
-                          Number(diceAmount) +
-                          sumBy(weaponDamageConditions, "value")
-                        }d${diceType}${
-                          extraWeaponDamage || extraWeaponDamageConditions
-                            ? `+ ${
-                                extraWeaponDamage
-                                  ? extraWeaponDamage
-                                  : 0 +
-                                    (extraWeaponDamageConditions
-                                      ? sumBy(
-                                          extraWeaponDamageConditions,
-                                          "value"
-                                        )
-                                      : 0)
-                              }`
-                            : ""
-                        }`
-                      : damage
-                    : damage,
-              };
-            }
-          ),
-          armor: characterData.items.armor,
+            return {
+              ...rest,
+              properties,
+              attackRoll: `${attackRoll < 0 ? "-" : "+"}${attackRoll}`,
+              totalBB:
+                totalBB !== 0 ? `${boons > banes ? "" : "-"}${totalBB}` : 0,
+              damageRoll:
+                weaponDamageConditions.length !== 0
+                  ? diceAmount
+                    ? `${
+                        Number(diceAmount) +
+                        sumBy(weaponDamageConditions, "value")
+                      }d${diceType}${
+                        extraWeaponDamage || extraWeaponDamageConditions
+                          ? `+ ${
+                              extraWeaponDamage
+                                ? extraWeaponDamage
+                                : 0 +
+                                  (extraWeaponDamageConditions
+                                    ? sumBy(
+                                        extraWeaponDamageConditions,
+                                        "value"
+                                      )
+                                    : 0)
+                            }`
+                          : ""
+                      }`
+                    : damage
+                  : damage,
+            };
+          }),
+          armor: equippedWithArmor,
           otherItems: characterData.items.otherItems,
           currency: characterData.items.currency,
         },
