@@ -138,8 +138,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const { Health, Perception, Speed, Defense, ...rest } =
-        characteristicsObject;
+      const {
+        Health,
+        Perception,
+        Speed,
+        Defense,
+        ...rest
+      } = characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -411,16 +416,19 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   (extraDamageDice ? Number(extraDamageDice) : 0)
                 }d${diceType}`;
 
+          const attackBonus =
+            characteristicsObject[
+              attribute === "Intellect" ? "Intellect" : "Will"
+            ] - 10;
           return {
             ...rest,
             attribute,
+            tradition,
             castings: spellCastings[rest.level],
             attackRoll: spell.description.includes("attack roll")
-              ? `${
-                  characteristicsObject[
-                    attribute === "Intellect" ? "Intellect" : "Will"
-                  ] - 10
-                }${boons > afflictionsBanes ? "+" : "-"} ${totalBB}B`
+              ? `${attackBonus >= 0 ? "+" : ""}${attackBonus}${
+                  boons > afflictionsBanes ? "+" : "-"
+                } ${totalBB}B`
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
           };
