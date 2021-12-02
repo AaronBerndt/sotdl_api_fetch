@@ -243,8 +243,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           return { _id: gear._id, ...rest, equipped: gear.equipped };
         });
 
-      console.log(equippedWithArmor);
-
       const equippedWeapons = equippedGear
         .filter((gear) =>
           find(items, {
@@ -399,6 +397,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             "value"
           );
 
+          console.log(extraDamageDice);
+
           const boons = sumBy(
             [...spellBoonConditionals, spellBoonConditionalsWithType],
             "value"
@@ -407,10 +407,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           const totalBB = boons - afflictionsBanes;
 
           const newDiceAmount =
-            diceType === "3"
-              ? `${diceAmount}d${diceType} ${
-                  extraDamageDice !== 0 ? `+ ${extraDamageDice}d6` : ""
-                } ${extraSpellDamage ? `+ ${extraSpellDamage}` : ""}`
+            diceType === undefined
+              ? damage
+              : diceType === "3"
+              ? `${diceAmount}d${diceType}
+                 ${extraDamageDice ? `+ ${extraDamageDice}d6` : ""} ${
+                  extraSpellDamage ? `+ ${extraSpellDamage}` : ""
+                }`
               : `${
                   Number(diceAmount) +
                   (extraDamageDice ? Number(extraDamageDice) : 0)
@@ -427,8 +430,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             castings: spellCastings[rest.level],
             attackRoll: spell.description.includes("attack roll")
               ? `${attackBonus >= 0 ? "+" : ""}${attackBonus}${
-                  boons > afflictionsBanes ? "+" : "-"
-                } ${totalBB}B`
+                  totalBB
+                    ? `${boons > afflictionsBanes ? " +" : " -"}${totalBB}B`
+                    : ""
+                }`
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
           };
@@ -485,7 +490,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               totalBB:
                 totalBB !== 0 ? `${boons > banes ? "" : "-"}${totalBB}` : 0,
               damageRoll:
-                weaponDamageConditions.length !== 0
+                diceType === undefined
+                  ? damage
+                  : weaponDamageConditions.length !== 0
                   ? diceAmount
                     ? `${
                         Number(diceAmount) +
