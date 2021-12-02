@@ -524,6 +524,24 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         professions: characterData.professions,
         details: characterData.details,
         characterState: characterData.characterState,
+        allCharacteristics: [
+          ...filterByLevel(
+            await createAncestryList(
+              ancestry.characteristics,
+              "characteristics"
+            )
+          ),
+          ...filterByLevel(
+            filterBySubPath(characterData.novicePath, "characteristics")
+          ),
+          ...filterByLevel(
+            filterByPathName(characterData.expertPath, "characteristics")
+          ),
+          ...filterByLevel(
+            filterByPathName(characterData.masterPath, "characteristics")
+          ),
+          ...characterData.characteristics,
+        ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
         choices: characterData.choices
           ? filterByLevel(characterData.choices)
           : [],
