@@ -5,6 +5,6 @@
     "outDir": "public",
     "sourceMap": true
   },
-  "include": ["api/**/*.ts"],
+  "include": ["api/**/*.ts", "./utilities/**.ts", "./utilities/**.test.ts"],
   "exclude": ["node_modules"]
 }
