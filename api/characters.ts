@@ -429,11 +429,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             tradition,
             castings: spellCastings[rest.level],
             attackRoll: spell.description.includes("attack roll")
-              ? `${attackBonus >= 0 ? "+" : ""}${attackBonus}${
-                  totalBB
-                    ? `${boons > afflictionsBanes ? " +" : " -"}${totalBB}B`
-                    : ""
-                }`
+              ? attackBonus
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
             totalBB,
