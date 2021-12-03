@@ -11,6 +11,7 @@ import {
   SPELL_BOON,
   SPELL_DICE_DAMAGE,
   STRENGTH_BOON,
+  WEAPON_BANE,
   WEAPON_BOON,
   WEAPON_DICE_DAMAGE,
   WILL_BOON,
@@ -71,7 +72,7 @@ const temporaryEffectsObject = (characterData) => ({
   Berserk: createTemporaryEffectsList(
     "Berserk",
     [
-      createEffect(WEAPON_BOON, 1),
+      createEffect(WEAPON_BANE, 1),
       createEffect(HEALTH, 10),
       createEffect(WEAPON_DICE_DAMAGE, 2),
     ],
