@@ -464,12 +464,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               requirementRegex.test(property)
             );
 
-            console.log(requirementArray, properties);
-
             const meetsRequirement = (requirementArray) => {
               if (requirementArray.length === 2) {
                 return requirementArray.some((requirement) => {
-                  console.log(requirement);
                   const attribute = requirementRegex.exec(requirement)[1];
 
                   const check = requirementRegex
@@ -492,7 +489,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                   ? Strength >= Number(check)
                   : Agility >= Number(check);
               }
-              return false;
+              return true;
             };
 
             const banes =
