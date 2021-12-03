@@ -436,6 +436,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                 }`
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
+            totalBB,
           };
         }),
         traditions: characterData.traditions,
