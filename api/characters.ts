@@ -392,8 +392,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             "value"
           );
 
-          console.log(extraDamageDice);
-
           const boons = sumBy(
             [...spellBoonConditionals, spellBoonConditionalsWithType],
             "value"
@@ -449,7 +447,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             ("value");
 
             const weaponBaneConditions = filter(talentIncreases, {
-              name: "Weapon Boon",
+              name: "Weapon Bane",
             });
             ("value");
 
