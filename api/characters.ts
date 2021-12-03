@@ -138,13 +138,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const {
-        Health,
-        Perception,
-        Speed,
-        Defense,
-        ...rest
-      } = characteristicsObject;
+      const { Health, Perception, Speed, Defense, ...rest } =
+        characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -465,10 +460,44 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
             const { Strength, Agility } = characteristicsObject;
             const boons = sumBy(weaponBoonConditions, "value");
+
+            const requirementRegex = /(Strength|Agility)(.*)/;
+            const requirementArray = properties.filter((property) =>
+              requirementRegex.test(property)
+            );
+
+            const meetsRequirement = (requirementArray) => {
+              if (requirementArray.length === 2) {
+                return requirementArray.some((requirement) => {
+                  const attribute = requirementRegex.exec(requirement)[1];
+
+                  const check = requirementRegex
+                    .exec(requirement)[2]
+                    .slice(1, -1);
+
+                  return attribute === "Strength"
+                    ? Strength >= Number(check)
+                    : Agility >= Number(check);
+                });
+              } else {
+                const requirement = requirementArray[0];
+                const attribute = requirementRegex.exec(requirement)[1];
+
+                const check = requirementRegex
+                  .exec(requirement)[2]
+                  .slice(1, -1);
+
+                return attribute === "Strength"
+                  ? Strength >= Number(check)
+                  : Agility >= Number(check);
+              }
+              return false;
+            };
+
             const banes =
               sumBy(weaponBaneConditions, "value") +
               (properties.includes("Cumbersome") ? 1 : 0) +
-              (properties.includes(/Strength/) ? 1 : 0) +
+              (meetsRequirement(requirementArray) ? 0 : 1) +
               afflictionsBanes;
 
             const totalBB = Math.abs(boons - banes);
