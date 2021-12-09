@@ -138,8 +138,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const { Health, Perception, Speed, Defense, ...rest } =
-        characteristicsObject;
+      const {
+        Health,
+        Perception,
+        Speed,
+        Defense,
+        ...rest
+      } = characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -272,6 +277,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
       finaldata = {
         _id: id,
+        partyId: characterData.partyId,
         name: characterData.name,
         level: characterData.level,
         ancestry: characterData.ancestry,
