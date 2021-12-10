@@ -138,13 +138,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const {
-        Health,
-        Perception,
-        Speed,
-        Defense,
-        ...rest
-      } = characteristicsObject;
+      const { Health, Perception, Speed, Defense, ...rest } =
+        characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -428,7 +423,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             tradition,
             castings: spellCastings[rest.level],
             attackRoll: spell.description.includes("attack roll")
-              ? `${attackBonus < 0 ? "-" : "+"}${attackBonus}`
+              ? find(spell.properties, { name: "TemporaryEffect" })
+                ? null
+                : `${attackBonus < 0 ? "-" : "+"}${attackBonus}`
               : null,
             damageRoll: `${damage ? newDiceAmount : null}`,
             totalBB,
