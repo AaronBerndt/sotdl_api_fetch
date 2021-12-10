@@ -63,6 +63,19 @@ const createTemporaryEffectsList = (
 
 const createEffect = (name, value) => ({ name, value });
 
+const attackRollBoons = [
+  createEffect(WEAPON_BOON, 1),
+  createEffect(SPELL_BOON, 1),
+];
+
+const challengeRollBoons = [
+  createEffect(WILL_BOON, 1),
+  createEffect(INTELLECT_BOON, 1),
+  createEffect(AGLITY_BOON, 1),
+  createEffect(STRENGTH_BOON, 1),
+  createEffect(PERCEPTION_BOON, 1),
+];
+
 const temporaryEffectsObject = (characterData) => ({
   "Killer’s Eye": createTemporaryEffectsList(
     "Killer’s Eye",
@@ -248,9 +261,9 @@ const temporaryEffectsObject = (characterData) => ({
     [createEffect(SPEED, 2), createEffect(ATTACK_AGAINST_BANE, 2)],
     characterData
   ),
-  "Arcane Defense": createTemporaryEffectsList(
-    "Arcane Defense",
-    [createEffect(ATTACK_AGAINST_BANE, 1)],
+  Blessing: createTemporaryEffectsList(
+    "Blessing",
+    [...challengeRollBoons, ...attackRollBoons],
     characterData
   ),
 });
