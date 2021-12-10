@@ -8,6 +8,8 @@ const cors = microCors();
 const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
     const id: any = request.query._id;
+
+    console.log(id);
     let data = id
       ? await fetchCollection("parties", {
           _id: new ObjectId(id),
@@ -26,6 +28,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           return {
             _id: partyMemberId,
             name: characterData.name,
+            currentHealth:
+              characterData.characteristics.Health -
+              characterData.characterState.damage,
             health: characterData.characteristics.Health,
             damage: characterData.characterState.damage,
           };
