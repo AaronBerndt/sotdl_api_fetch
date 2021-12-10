@@ -9,7 +9,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
     const id: any = request.query._id;
 
-    console.log(id);
     let data = id
       ? await fetchCollection("parties", {
           _id: new ObjectId(id),
