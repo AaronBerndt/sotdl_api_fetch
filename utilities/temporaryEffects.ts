@@ -19,6 +19,7 @@ import {
 import { range } from "lodash";
 
 export const temporaryEffectsList = [
+  "Blessing",
   "Killer’s Eye",
   "Berserk",
   "Ferocious Wrath",
