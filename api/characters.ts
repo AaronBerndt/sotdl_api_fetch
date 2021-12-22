@@ -30,6 +30,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const paths = await fetchCollection("paths");
       const items = await fetchCollection("items");
 
+      const [party] = await fetchCollection("parties", {
+        name: characterData.partyId,
+      });
+
       const spells =
         characterData.spells.length === 0
           ? []
@@ -138,8 +142,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const { Health, Perception, Speed, Defense, ...rest } =
-        characteristicsObject;
+      const {
+        Health,
+        Perception,
+        Speed,
+        Defense,
+        ...rest
+      } = characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -273,6 +282,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       finaldata = {
         _id: id,
         partyId: characterData.partyId,
+        activeCombat: party.activeCombat,
         name: characterData.name,
         level: characterData.level,
         ancestry: characterData.ancestry,
