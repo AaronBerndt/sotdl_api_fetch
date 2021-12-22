@@ -30,8 +30,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const paths = await fetchCollection("paths");
       const items = await fetchCollection("items");
 
-      const [party] = await fetchCollection("parties", {
-        name: characterData.partyId,
+      const [combat] = await fetchCollection("combats", {
+        partyId: characterData.partyId,
+        active: true,
       });
 
       const spells =
@@ -282,7 +283,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       finaldata = {
         _id: id,
         partyId: characterData.partyId,
-        activeCombat: party?.activeCombat ? party?.activeCombat : "",
+        activeCombat: combat ? combat?._id : "",
         name: characterData.name,
         level: characterData.level,
         ancestry: characterData.ancestry,
