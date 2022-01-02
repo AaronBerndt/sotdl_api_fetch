@@ -283,6 +283,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       finaldata = {
         _id: id,
         partyId: characterData.partyId,
+        turnType: characterData.turnType,
         activeCombat: combat ? combat?._id : "",
         name: characterData.name,
         level: characterData.level,
