@@ -3,6 +3,7 @@ import { fetchCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
 import axios from "axios";
+import { uniq, find, flatten } from "lodash";
 const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
@@ -12,6 +13,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       ? await fetchCollection("combats", { _id: new ObjectId(id) })
       : await fetchCollection("combats", {});
 
+    console.log(data);
     if (id) {
       const { combatants, partyId, ...rest } = data[0];
 
@@ -19,12 +21,22 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         `https://sotdl-api-fetch.vercel.app/api/parties?_id=${partyId}`
       );
 
+      const monsterStatData = await Promise.all(
+        uniq(combatants.map(({ monsterId }: any) => monsterId)).map(
+          async (monsterId) => {
+            let { data } = await axios(
+              `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${monsterId}`
+            );
+            return data;
+          }
+        )
+      );
+
       const monsterData = await Promise.all(
         combatants.map(async (combatant) => {
           const { monsterId, damage, ...rest } = combatant;
-          let { data } = await axios(
-            `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${combatant.monsterId}`
-          );
+
+          const data = find(flatten(monsterStatData), { _id: monsterId });
           const maxHealth = data.characteristics.Health;
           return {
             ...rest,
@@ -32,7 +44,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             monsterId,
             currentHealth: maxHealth - damage <= 0 ? 0 : maxHealth - damage,
             maxHealth,
-            ...data,
+            actions: data.actions,
+            defense: data.characteristics.Defense,
+            monsterInfo: data,
           };
         })
       );
@@ -40,8 +54,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       data = {
         ...rest,
         partyId,
-        combatants: monsterData,
-        ...partyData,
+        combatants: [...monsterData, ...partyData],
       };
     }
 
