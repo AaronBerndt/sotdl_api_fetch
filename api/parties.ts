@@ -32,6 +32,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               characterData.characterState.damage,
             health: characterData.characteristics.Health,
             damage: characterData.characterState.damage,
+            turnType: characterData.turnType,
           };
         })
       );
