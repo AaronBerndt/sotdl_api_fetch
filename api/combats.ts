@@ -37,13 +37,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           const { monsterId, damage, ...rest } = combatant;
 
           const data = find(flatten(monsterStatData), { _id: monsterId });
-          const maxHealth = data.characteristics.Health;
+          const health = data.characteristics.Health;
           return {
             ...rest,
             damage,
             monsterId,
-            currentHealth: maxHealth - damage <= 0 ? 0 : maxHealth - damage,
-            maxHealth,
+            currentHealth: health - damage <= 0 ? 0 : health - damage,
+            health,
             actions: data.actions,
             defense: data.characteristics.Defense,
             monsterInfo: data,
