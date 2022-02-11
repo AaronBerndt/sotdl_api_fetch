@@ -143,13 +143,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         )
       );
 
-      const {
-        Health,
-        Perception,
-        Speed,
-        Defense,
-        ...rest
-      } = characteristicsObject;
+      const { Health, Perception, Speed, Defense, ...rest } =
+        characteristicsObject;
 
       const characterDataObject = {
         characteristics: characteristicsObject,
@@ -293,7 +288,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         masterPath: characterData.masterPath,
         characteristics: {
           Health:
-            Health +
+            (Health ? Health : 0) +
             characteristicsObject.Strength +
             sumBy(
               filter(talentIncreases, {
@@ -302,7 +297,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               "value"
             ),
           HealingRate: Math.round(
-            (Health +
+            ((Health ? Health : 0) +
               characteristicsObject.Strength +
               sumBy(
                 filter(talentIncreases, {
