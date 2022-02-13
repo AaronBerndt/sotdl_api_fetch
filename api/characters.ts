@@ -58,7 +58,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         const keyObject: any = {
           Warrior: "disciplines",
           Magician: "focuses",
-          Priest: "faith",
+          Priest: "faiths",
           Rogue: "knacks",
         };
 
@@ -73,13 +73,17 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name: talentName[name],
         });
 
-        if (choiceObject.value !== "None" || null) {
+        if (!choiceObject) {
+          return filterByPathName(name, key);
+        }
+        if (choiceObject?.value !== "None" || null) {
           const subPathData = find(filterByPathName(name, keyObject[name]), {
             name: choiceObject.value,
           });
 
           return subPathData[key];
         }
+
         return filterByPathName(name, key);
       };
 
