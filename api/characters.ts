@@ -15,9 +15,12 @@ const cors = microCors();
 const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
     const id: any = request.query._id;
+    const playerId: any = request.query.playerId;
     let finaldata = null;
     const data = id
       ? await fetchCollection("characters", { _id: new ObjectId(id) })
+      : playerId
+      ? await fetchCollection("characters", { playerId })
       : await fetchCollection("characters", {});
 
     if (id) {
